@@ -1,11 +1,11 @@
 package com.project.blog.controller;
 
+import com.project.blog.domain.User;
 import com.project.blog.dto.User.UserLoginDto;
 import com.project.blog.dto.User.UserSignupDto;
 import com.project.blog.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,12 +14,13 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserSignupDto Signup(UserSignupDto userSignupDto) {
-        userService.join(userSignupDto);
-        return userSignupDto;
+    @PostMapping("user/join")
+    public User Signup(@RequestBody UserSignupDto userSignupDto) {
+        return userService.join(userSignupDto);
     }
 
-    public UserSignupDto Login(UserLoginDto userLoginDto) {
-
+    @PostMapping("user/login")
+    public String Login(UserLoginDto userLoginDto) {
+        return userService.login(userLoginDto);
     }
 }

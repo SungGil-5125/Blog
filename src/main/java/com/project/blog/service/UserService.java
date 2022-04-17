@@ -3,12 +3,18 @@ package com.project.blog.service;
 import com.project.blog.domain.User;
 import com.project.blog.dto.User.UserLoginDto;
 import com.project.blog.dto.User.UserSignupDto;
+import com.project.blog.exception.ErrorCode;
+import com.project.blog.exception.exception.EmailNotFind;
+import com.project.blog.exception.exception.PasswordNotCorrect;
+import com.project.blog.exception.exception.UsedEmail;
 import com.project.blog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.constraints.Email;
 import java.util.Optional;
 
 @Service
@@ -18,8 +24,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public User join(UserSignupDto userSignupDto) {
-        Optional<User> byEmail = userRepository.findByEmail(userSignupDto.getEmail());
+        Optional<User> Email = userRepository.findByEmail(userSignupDto.getEmail());
+
+        if(!Email.isEmpty()){
+            throw new UsedEmail("Email is aready used", ErrorCode.USED_EMAIL);
+        }
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -29,12 +40,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public String login(UserLoginDto userLoginDto) {
         User user = userRepository.findByEmail(userLoginDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 email입니다."));
+                .orElseThrow(() -> new EmailNotFind("Email is not find",ErrorCode.EMAIL_NOT_FIND));
 
         if(!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-                throw new IllegalAccessException("잘못된 비밀번호 입니다.");
+            throw new PasswordNotCorrect("Password is not correct",ErrorCode.PASSWORD_NOT_CORRECT);
         }
+
+
     }
 }
