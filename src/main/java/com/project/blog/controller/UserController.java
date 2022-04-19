@@ -1,8 +1,8 @@
 package com.project.blog.controller;
 
 import com.project.blog.domain.User;
-import com.project.blog.dto.User.UserLoginDto;
-import com.project.blog.dto.User.UserSignupDto;
+import com.project.blog.dto.Request.UserLoginDto;
+import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

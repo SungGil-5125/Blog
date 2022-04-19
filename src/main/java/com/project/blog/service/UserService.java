@@ -1,8 +1,8 @@
 package com.project.blog.service;
 
 import com.project.blog.domain.User;
-import com.project.blog.dto.User.UserLoginDto;
-import com.project.blog.dto.User.UserSignupDto;
+import com.project.blog.dto.Request.UserLoginDto;
+import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.exception.ErrorCode;
 import com.project.blog.exception.exception.EmailNotFind;
 import com.project.blog.exception.exception.PasswordNotCorrect;
@@ -47,6 +47,6 @@ public class UserService {
             throw new PasswordNotCorrect("Password is not correct",ErrorCode.PASSWORD_NOT_CORRECT);
         }
 
-
+        
     }
 }

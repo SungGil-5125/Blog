@@ -1,4 +1,4 @@
-package com.project.blog.dto.User;
+package com.project.blog.dto.Request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
