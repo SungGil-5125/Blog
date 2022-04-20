@@ -1,8 +1,11 @@
 package com.project.blog.domain;
 
+import com.project.blog.enums.Role;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -23,4 +26,10 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "refreshToken")
+    private String refreshToken;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    private List<Role> roles = new ArrayList<Role>();
 }

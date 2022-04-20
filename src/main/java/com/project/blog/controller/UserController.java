@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @PostMapping("user/login")
-    public String Login(UserLoginDto userLoginDto) {
+    public UserLoginDto Login(UserLoginDto userLoginDto) {
         return userService.login(userLoginDto);
     }
 }
