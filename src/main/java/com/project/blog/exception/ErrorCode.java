@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
     PASSWORD_NOT_CORRECT(404, "Password is not correct"),
-    USED_EMAIL(400, "Email is aready used"),
+    USED_EMAIL(400, "Email is already used"),
     EMAIL_NOT_FIND(404, "Email is not find")
     ;
 
