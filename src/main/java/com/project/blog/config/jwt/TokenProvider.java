@@ -25,7 +25,6 @@ public class TokenProvider {
     private final Long accessTokenVaildMillisecond = 60 * 60 * 1000L; //1 hours
     private final Long refreshTokenValidMillisecond = 14 * 24 * 60 * 60 * 1000L; //14 days
 
-    private final UserService userService;
     private final UserDetailsService userDetailsService;
 
     @PostConstruct

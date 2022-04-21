@@ -3,6 +3,7 @@ package com.project.blog.controller;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
+import com.project.blog.dto.Response.TokenDto;
 import com.project.blog.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping("user/login")
-    public UserLoginDto Login(UserLoginDto userLoginDto) {
+    public TokenDto Login(@RequestBody UserLoginDto userLoginDto) {
         return userService.login(userLoginDto);
     }
 }
