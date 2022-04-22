@@ -1,7 +1,7 @@
 package com.project.blog.service;
 
 import com.project.blog.exception.ErrorCode;
-import com.project.blog.exception.exception.EmailNotFind;
+import com.project.blog.exception.exception.EmailNotFindException;
 import com.project.blog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +18,7 @@ public class CustomUserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EmailNotFind("Email is not find", ErrorCode.EMAIL_NOT_FIND));
+                .orElseThrow(() -> new EmailNotFindException("Email is not find", ErrorCode.EMAIL_NOT_FIND));
     }
+
 }
