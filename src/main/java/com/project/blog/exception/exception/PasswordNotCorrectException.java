@@ -2,11 +2,11 @@ package com.project.blog.exception.exception;
 
 import com.project.blog.exception.ErrorCode;
 
-public class RefreshTokenExpriation extends RuntimeException {
+public class PasswordNotCorrectException extends RuntimeException {
     private ErrorCode errorCode;
 
-    public RefreshTokenExpriation(String msg, ErrorCode errorCode) {
-        super(msg);
+    public PasswordNotCorrectException(String message, ErrorCode errorCode) {
+        super(message);
         this.errorCode = errorCode;
     }
 }
