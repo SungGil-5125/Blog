@@ -1,14 +1,11 @@
 package com.project.blog.domain;
 
-import com.project.blog.enums.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Builder
@@ -25,6 +22,9 @@ public class User implements UserDetails {
 
     @Column
     private String email;
+
+    @Column(name = "name")
+    private String name;
 
     @Column
     private String password;
@@ -59,10 +59,5 @@ public class User implements UserDetails {
         return false;
     }
 
-//    @Column(name = "refreshToken")
-//    private String refreshToken;
-//
-//    @ElementCollection(fetch = FetchType.LAZY)
-//    @Enumerated(EnumType.STRING)
-//    private List<Role> roles = new ArrayList<Role>();
+
 }

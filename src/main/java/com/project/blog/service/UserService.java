@@ -66,7 +66,6 @@ public class UserService {
                 .orElseThrow(()-> new EmailNotFindException("Password is not correct", ErrorCode.EMAIL_NOT_FIND));
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
-                
                 .Success(true)
                 .User_id(user_id)
                 .User_email(user.getEmail())

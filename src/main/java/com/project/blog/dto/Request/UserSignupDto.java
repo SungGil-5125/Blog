@@ -16,6 +16,9 @@ public class UserSignupDto {
     @Email(message = "이메일 형식에 맞지 않습니다.")
     private String email;
 
+    @NotBlank(message = "사용자 이름이 입력되지 않았습니다.")
+    private String name;
+
     @NotBlank(message = "패스워드가 입력되지 않았습니다.")
     @Size(min = 8, message = "비밀번호는 8자 이상이여야 합니다.")
     private String password;
@@ -23,6 +26,7 @@ public class UserSignupDto {
     public User toEntity(){
         return User.builder()
                 .email(email)
+                .name(name)
                 .password(password)
                 .build();
     }
