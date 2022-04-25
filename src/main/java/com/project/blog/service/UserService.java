@@ -5,6 +5,7 @@ import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.dto.Response.TokenResponseDto;
+import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.exception.ErrorCode;
 import com.project.blog.exception.exception.EmailNotFindException;
 import com.project.blog.exception.exception.PasswordNotCorrectException;
@@ -56,6 +57,23 @@ public class UserService {
                 .RefreshToken(RefreshToken)
                 .build();
 
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDto profile(Long user_id) {
+
+        User user = userRepository.findById(user_id)
+                .orElseThrow(()-> new EmailNotFindException("Password is not correct", ErrorCode.EMAIL_NOT_FIND));
+
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                
+                .Success(true)
+                .User_id(user_id)
+                .User_email(user.getEmail())
+                .User_name(user.getName())
+                .build();
+
+        return userResponseDto;
     }
 
 }
