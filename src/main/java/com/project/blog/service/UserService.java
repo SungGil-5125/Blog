@@ -6,10 +6,8 @@ import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.dto.Response.TokenResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
+import com.project.blog.exception.CustomException;
 import com.project.blog.exception.ErrorCode;
-import com.project.blog.exception.exception.EmailNotFindException;
-import com.project.blog.exception.exception.PasswordNotCorrectException;
-import com.project.blog.exception.exception.UsedEmailException;
 import com.project.blog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +28,7 @@ public class UserService {
         Optional<User> Email = userRepository.findByEmail(userSignupDto.getEmail());
 
         if(Email.isPresent()){
-            throw new UsedEmailException("Email is already used", ErrorCode.USED_EMAIL);
+            throw new CustomException(ErrorCode.USED_EMAIL);
         }
 
         userSignupDto.setPassword(passwordEncoder.encode(userSignupDto.getPassword()));
@@ -42,11 +40,11 @@ public class UserService {
     @Transactional
     public TokenResponseDto login(UserLoginDto userLoginDto) {
         User user = userRepository.findByEmail(userLoginDto.getEmail())
-                .orElseThrow(() -> new EmailNotFindException("Email is not find", ErrorCode.EMAIL_NOT_FIND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FIND));
 
 
         if(!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
-            throw new PasswordNotCorrectException("Password is not correct", ErrorCode.PASSWORD_NOT_CORRECT);
+            throw new CustomException(ErrorCode.PASSWORD_NOT_CORRECT);
         }
 
         String AccessToken = tokenProvider.createAccessTokenDto(userLoginDto.getEmail());
@@ -59,11 +57,10 @@ public class UserService {
 
     }
 
-    @Transactional(readOnly = true)
     public UserResponseDto profile(Long user_id) {
 
         User user = userRepository.findById(user_id)
-                .orElseThrow(()-> new EmailNotFindException("Password is not correct", ErrorCode.EMAIL_NOT_FIND));
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FIND));
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .Success(true)

@@ -1,37 +1,31 @@
 package com.project.blog.exception.Handler;
 
+import com.project.blog.exception.CustomException;
 import com.project.blog.exception.ErrorResponse;
-import com.project.blog.exception.exception.UsedEmailException;
-import org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy;
-import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
 
+import static com.project.blog.exception.ErrorCode.USED_EMAIL;
 
-@RestControllerAdvice
+@RestControllerAdvice //view를 사용하지 않고, REST API로만 사용할 수 있다.
 @Slf4j
-public class ErrorExceptionHandler {
+public class ErrorExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(UsedEmailException.class)
-    public ResponseEntity<ErrorResponse> UsedEmailExceptionHandler(HttpServletRequest request, HttpServletResponse response, UsedEmailException ex) {
-
-        printExceptionMessage(request, ex, "Email is already used");
-
-        ErrorResponse errorResponse = new ErrorResponse(ex.getErrorCode());
-
-        System.out.println("/////////errorStatus///////// = " + ex.getErrorCode().getStatus());
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(ex.getErrorCode().getStatus()));
+    @ExceptionHandler(value = {ConstraintViolationException.class, DataIntegrityViolationException.class})
+    protected ResponseEntity<ErrorResponse> handleDataException() { //hibernate 관련 에러를 처리한다.
+        log.error("handleDataException throw Exception : {}", USED_EMAIL);
+        return ErrorResponse.toResponseEntity(USED_EMAIL);
     }
 
-    private void printExceptionMessage(HttpServletRequest request, Exception ex, String message) {
-        log.error(request.getRequestURI());
-        log.error(message);
-        ex.printStackTrace();
+    @ExceptionHandler(value = {CustomException.class})
+    protected ResponseEntity<ErrorResponse> handleCustomException(CustomException e) { // 직접 정의한 CustomExeption을 사용한다.
+        log.error("handleCustomException throws CustomException : {}", e.getErrorCode());
+        return ErrorResponse.toResponseEntity(e.getErrorCode()); //exception 발생시 넘겨받은 errorcode를 이용해 사용자에게 보여주는 에러 메세지를 정의한다.
     }
 }
