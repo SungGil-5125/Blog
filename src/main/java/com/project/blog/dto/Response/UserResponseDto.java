@@ -11,5 +11,5 @@ public class UserResponseDto {
     private Long User_id;
     private String User_email;
     private String User_name;
-
+    private String User_password;
 }

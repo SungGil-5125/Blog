@@ -8,10 +8,14 @@ import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.FileNotFoundException;
+
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("Devlog")
+//@RequestMapping("Devlog")
 public class UserController {
 
     private final UserService userService;
@@ -25,6 +29,11 @@ public class UserController {
     public String login() {
         return "로그인 페이지";
     }
+
+//    @GetMapping("/user/update/{user_id}")
+//    public UserResponseDto UpdateUserProfile(@PathVariable("user_id") Long user_id){
+//        return userService.UpdateProfile(user_id);
+//    }
 
     @GetMapping("/user/{user_id}")
     @ResponseBody
@@ -40,5 +49,10 @@ public class UserController {
     @PostMapping("/user/login")
     public TokenResponseDto Login(@RequestBody UserLoginDto userLoginDto) {
         return userService.login(userLoginDto);
+    }
+
+    @PostMapping("/user/upload")
+    public Boolean fileUpload(@RequestParam("file")MultipartFile file) throws Exception {
+        return userService.uploadImage(file);
     }
 }
