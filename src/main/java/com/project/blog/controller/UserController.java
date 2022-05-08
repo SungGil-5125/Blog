@@ -3,6 +3,7 @@ package com.project.blog.controller;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
+import com.project.blog.dto.Request.UserUpdateDto;
 import com.project.blog.dto.Response.TokenResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.service.UserService;
@@ -52,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/user/upload")
-    public Boolean fileUpload(@RequestParam("file")MultipartFile file) throws Exception {
-        return userService.uploadImage(file);
+    public User fileUpload(@RequestParam("file") MultipartFile file, @RequestBody UserUpdateDto userUpdateDto) throws Exception {
+        return userService.UpdateProfile(file, userUpdateDto);
     }
 }
