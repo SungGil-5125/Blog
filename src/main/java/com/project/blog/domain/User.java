@@ -29,6 +29,12 @@ public class User implements UserDetails {
     @Column
     private String password;
 
+    @Column(nullable = true)
+    private String img;
+
+    @Column(nullable = true)
+    private String refreshToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
