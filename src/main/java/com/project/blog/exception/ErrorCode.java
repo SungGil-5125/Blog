@@ -19,7 +19,7 @@ public enum ErrorCode {
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
     PASSWORD_NOT_CORRECT(NOT_FOUND, "비밀번호가 맞지 않습니다."),
-
+    IMAGE_NOT_FOUND(NOT_FOUND, "이미지가 선택되지 않았습니다."),
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     USER_NOT_FIND(CONFLICT, "계정을 찾을 수 없습니다."),

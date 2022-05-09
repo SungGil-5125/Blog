@@ -28,6 +28,8 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 	compileOnly 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+	implementation 'commons-io:commons-io:2.6'
+
 }
 
 tasks.named('test') {

@@ -4,6 +4,7 @@ import com.project.blog.config.jwt.TokenProvider;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
+import com.project.blog.dto.Request.UserUpdateDto;
 import com.project.blog.dto.Response.TokenResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.exception.CustomException;
@@ -15,17 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+
+import static com.project.blog.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -44,7 +40,7 @@ public class UserService {
         Optional<User> Email = userRepository.findByEmail(userSignupDto.getEmail());
 
         if(Email.isPresent()){
-            throw new CustomException(ErrorCode.USED_EMAIL);
+            throw new CustomException(USED_EMAIL);
         }
 
         userSignupDto.setPassword(passwordEncoder.encode(userSignupDto.getPassword()));
@@ -56,7 +52,7 @@ public class UserService {
     @Transactional
     public TokenResponseDto login(UserLoginDto userLoginDto) {
         User user = userRepository.findByEmail(userLoginDto.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FIND));
+                .orElseThrow(() -> new CustomException(USER_NOT_FIND));
 
 
         if(!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
@@ -76,7 +72,7 @@ public class UserService {
     public UserResponseDto profile(Long user_id) {
 
         User user = userRepository.findById(user_id)
-                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FIND));
+                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .Success(true)
@@ -88,24 +84,24 @@ public class UserService {
         return userResponseDto;
     }
 
-    public Boolean uploadImage(MultipartFile image) throws Exception {
-        Boolean result = Boolean.FALSE;
 
-        try {
+    public boolean UpdateProfile(MultipartFile image) throws Exception {
+
             File folder = new File(uploadDir);
-            if(!folder.exists()) folder.mkdir();
+            if (!folder.exists()) folder.mkdir();
+
+            if(image.isEmpty()) {
+                throw new CustomException(IMAGE_NOT_FOUND);
+            }
 
 //            File destination = new File(uploadDir + File.separator + image.getOriginalFilename());
-            File destination = new File(uploadDir + image.getOriginalFilename());
+        String fullName = uploadDir+image.getOriginalFilename();
+        image.transferTo(new File(fullName));
 
-            image.transferTo(destination);
+            System.out.println("이미지 이름 = " + image.getOriginalFilename());
 
-            result = Boolean.TRUE;
-        }catch (Exception e){
-            log.error("에러 : " + e.getMessage());
-        }finally {
-            return result;
-        }
+
+        return true;
     }
 
 
