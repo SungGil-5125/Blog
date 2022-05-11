@@ -12,16 +12,15 @@ public class BoardCreateRequestDto {
 
     private Long board_id;
     private String title;
-    private String desc;
+    private String content;
     private String date;
-    private String img;
+
 
     public Board toEntity() {
         return Board.builder()
                 .title(title)
-                .content(desc)
+                .content(content)
                 .date(date)
-                .img(img)
                 .build();
     }
 }
