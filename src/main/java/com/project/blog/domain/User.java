@@ -5,7 +5,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Builder
@@ -30,10 +32,10 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = true)
-    private String img;
-
-    @Column(nullable = true)
     private String refreshToken;
+
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
+    private List<Board> board = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

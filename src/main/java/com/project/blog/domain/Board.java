@@ -4,6 +4,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.lang.reflect.Member;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -13,23 +15,28 @@ import java.lang.reflect.Member;
 public class Board {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long board_id;
 
-    @ManyToOne(cascade = CascadeType.MERGE, targetEntity = Member.class) // merge란 엔티티 상태를 병합할 때 연관된 엔티티도 모두 병합하는것을 의미함.
-    @JoinColumn(name = "member_id", updatable = false)
-    private Member member;
+    @ManyToOne(cascade = CascadeType.MERGE, targetEntity = User.class) // merge란 엔티티 상태를 병합할 때 연관된 엔티티도 모두 병합하는것을 의미함.
+    @JoinColumn(name = "user_id", updatable = false)
+    private String user;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(nullable = false)
     private String content;
 
     @Column
     private String date;
 
-    @Column
-    private String img;
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
+    private List<Image> image = new ArrayList<>();
+
+//    public void addImage(Image image) {
+//        this.image.add(image);
+//
+//        if(image.getBoard_id())
+//    }
 }
