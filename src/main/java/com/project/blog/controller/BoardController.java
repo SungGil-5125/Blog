@@ -1,7 +1,6 @@
 package com.project.blog.controller;
 
-import com.project.blog.domain.Board;
-import com.project.blog.dto.Request.BoardCreateRequestDto;
+import com.project.blog.domain.Image;
 import com.project.blog.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +17,12 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping("board/write")
-    public Board CreateBoard(
-            @RequestPart(value = "image", required = false)List<MultipartFile> files,
-            @RequestPart BoardCreateRequestDto boardCreateRequestDto
+    public List<Image> CreateBoard(
+            @RequestPart(value = "file", required = false) List<MultipartFile> file
+            //@RequestPart BoardCreateRequestDto boardCreateRequestDto
             ) throws Exception {
 
-        return boardService.CreateBoard(boardCreateRequestDto, files);
+        return boardService.CreateBoard(file); //boardCreateRequestDto,
     }
 
 }

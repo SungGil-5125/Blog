@@ -2,13 +2,17 @@ package com.project.blog.service.Handler;
 
 import com.project.blog.domain.Image;
 import com.project.blog.dto.Request.ImageDto;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.parameters.P;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +20,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.String;
 
+// 쉬프트 fn 왼쪽 한줄 선택
+//@Builder
 @Component
-@Builder
 public class FIleHandler {
 
+    @Value("servlet.multipart.location")
+    private String uploadDir;
 
     public List<Image> parseFileInfo(List<MultipartFile> multipartFiles) throws IOException {
         //변환한 파일 리스트
@@ -37,11 +45,15 @@ public class FIleHandler {
 
             // 프로젝트 디렉터리 내의 저장을 위한 절대경로 설정
             // 경로 구분자 File.separator 사용
-            String absoulutePath = new File("C:\\Users\\user\\Pictures\\blog").getAbsolutePath() + File.separator + File.separator;
+            String absoulutePath = new File("").getAbsolutePath() + File.separator + File.separator;
+
+
 
             //파일을 저장할 세부 경로 지정
+            // String path = "C" + File.separator + "Users" + File.separator + "user" + File.separator + "Pictures" + File.separator + "blog";
             String path = "image" + File.separator + current_date;
-            File file = new File(path);
+
+            File file = new File(uploadDir);
 
             // 디렉터리가 존재하지 않을 경우
             if(!file.exists()) {
@@ -62,12 +74,14 @@ public class FIleHandler {
                 if(ObjectUtils.isEmpty(contentType)){
                     break;
                 }
+
                 else {
                     if(contentType.contains("image/jpeg"))
                         originalFileExtension = ".jpg";
                     else if(contentType.contains("image/png"))
                         originalFileExtension = ".png";
                     else
+                        //System.out.println("안됨");
                         break;
                 }
 
@@ -85,7 +99,7 @@ public class FIleHandler {
                 fileList.add(image);
 
                 // 업로드 한 파일 데이터를 저장한 파일에 저장
-                file = new File(absoulutePath + path + File.separator + new_file_name);
+                file = new File(absoulutePath + "C:\\Users\\user\\Pictures\\blog" + File.separator + new_file_name);
                 multipartFile.transferTo(file);
 
                 // 파일 권한 설정(쓰기, 읽기)
@@ -93,6 +107,7 @@ public class FIleHandler {
                 file.setReadable(true);
             }
         }
+
         return fileList;
     }
 
