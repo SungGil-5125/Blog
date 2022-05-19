@@ -13,14 +13,13 @@ public class UserUpdateDto {
     private String name;
     private String email;
     private String password;
-    private String img;
+    private String desc;
 
     public User toEntity(){
         return User.builder()
                 .email(email)
                 .name(name)
                 .password(password)
-                .img(img)
                 .build();
     }
 
