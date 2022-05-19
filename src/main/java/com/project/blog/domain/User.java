@@ -11,9 +11,9 @@ import java.util.List;
 
 @Getter
 @Builder
-@Table(name = "user")
 @NoArgsConstructor // 기본 생성자를 해주는거거든
 @AllArgsConstructor
+@Table(name = "user")
 @Entity
 public class User implements UserDetails {
 
@@ -25,11 +25,14 @@ public class User implements UserDetails {
     @Column
     private String email;
 
-    @Column(name = "name")
+    @Column
     private String name;
 
     @Column
     private String password;
+
+    @Column
+    private String desc;
 
     @Column(nullable = true)
     private String refreshToken;
