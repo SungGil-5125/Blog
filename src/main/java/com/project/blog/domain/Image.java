@@ -3,7 +3,6 @@ package com.project.blog.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Builder
@@ -20,12 +19,14 @@ public class Image {
 
     @ManyToOne(targetEntity = Board.class)
     @JoinColumn(name = "board_id")
-    private String board_id;
+    private Board board_id;
 
     @Column(nullable = false)
     private String origFileName;
 
     @Column(nullable = false)
     private String filePath;
+
+
 
 }
