@@ -13,9 +13,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor // 기본 생성자를 해주는거거든
 @AllArgsConstructor
-@Table(name = "user")
 @Entity
-public class User implements UserDetails {
+public class Member implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,6 +37,7 @@ public class User implements UserDetails {
     private String refreshToken;
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
+    @JoinColumn(name = "board_id", updatable = false)
     private List<Board> board = new ArrayList<>();
 
     @Override

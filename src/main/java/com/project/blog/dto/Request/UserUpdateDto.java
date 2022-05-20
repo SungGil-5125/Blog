@@ -1,6 +1,6 @@
 package com.project.blog.dto.Request;
 
-import com.project.blog.domain.User;
+import com.project.blog.domain.Member;
 import lombok.*;
 
 @Getter
@@ -15,8 +15,8 @@ public class UserUpdateDto {
     private String password;
     private String desc;
 
-    public User toEntity(){
-        return User.builder()
+    public Member toEntity(){
+        return Member.builder()
                 .email(email)
                 .name(name)
                 .password(password)
