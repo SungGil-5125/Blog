@@ -4,7 +4,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import com.project.blog.domain.Member;
+import com.project.blog.domain.User;
 import lombok.*;
 
 @Getter
@@ -23,8 +23,8 @@ public class UserSignupDto {
     @Size(min = 8, message = "비밀번호는 8자 이상이여야 합니다.")
     private String password;
 
-    public Member toEntity(){
-        return Member.builder()
+    public User toEntity(){
+        return User.builder()
                 .email(email)
                 .name(name)
                 .password(password)

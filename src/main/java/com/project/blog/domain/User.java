@@ -14,11 +14,11 @@ import java.util.List;
 @NoArgsConstructor // 기본 생성자를 해주는거거든
 @AllArgsConstructor
 @Entity
-public class Member implements UserDetails {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
+    @Column
     private Long user_id;
 
     @Column
@@ -30,15 +30,13 @@ public class Member implements UserDetails {
     @Column
     private String password;
 
-    @Column
-    private String desc;
-
     @Column(nullable = true)
     private String refreshToken;
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JoinColumn(name = "board_id", updatable = false)
+    @JoinColumn(name = "board_id", updatable = true)
     private List<Board> board = new ArrayList<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
