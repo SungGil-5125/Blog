@@ -5,9 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Builder
@@ -33,10 +31,14 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private String refreshToken;
 
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JoinColumn(name = "board_id", updatable = true)
-    private List<Board> board = new ArrayList<>();
+//    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
+//    @JoinColumn(name = "board_id", updatable = true)
+//    private List<Board> board = new ArrayList<>();
 
+    public void update(String name, String password){
+        this.name = name;
+        this.password = password;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -67,6 +69,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
-
-
 }
