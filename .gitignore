@@ -38,6 +38,10 @@ out/
 ### VS Code ###
 .vscode/
 
-/src/main/resources/Blog.properties
+### yml ###
 /src/main/resources/application.yml
+
+### 사진 ###
+/pictures
+/profile
 
