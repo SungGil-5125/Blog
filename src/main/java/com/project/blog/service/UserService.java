@@ -1,9 +1,7 @@
 package com.project.blog.service;
 
 import com.project.blog.config.jwt.TokenProvider;
-import com.project.blog.domain.Image;
 import com.project.blog.domain.User;
-import com.project.blog.dto.Request.ImageDto;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.dto.Request.UserUpdateDto;
@@ -19,12 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.project.blog.exception.ErrorCode.*;
@@ -54,6 +50,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public TokenResponseDto login(UserLoginDto userLoginDto) {
         User user = userRepository.findByEmail(userLoginDto.getEmail())
                 .orElseThrow(() -> new CustomException(USER_NOT_FIND));
@@ -73,6 +70,7 @@ public class UserService {
 
     }
 
+    @Transactional
     public UserResponseDto profile(Long user_id) {
 
         User user = userRepository.findById(user_id)
@@ -88,49 +86,51 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfile(Long user_id, UserUpdateDto userUpdateDto, MultipartFile file) throws IOException {
+    public void updateProfile(Long user_id, MultipartFile file, UserUpdateDto userUpdateDto) throws IOException {
 
+        //, String name, String password, String newPassword
         User user = userRepository.findById(user_id)
                 .orElseThrow(()-> new CustomException(USER_NOT_FIND));
 
-        if(Objects.equals(userUpdateDto.getPassword(), user.getPassword())) {
-            throw new CustomException(SAME_PASSWORD);
+        UserUpdateDto.builder()
+                .name(userUpdateDto.getName())
+                .password(userUpdateDto.getPassword())
+                .newPassword(userUpdateDto.getNewPassword())
+                .build();
+
+        String new_password_encode = passwordEncoder.encode(userUpdateDto.getNewPassword());
+
+        if(!passwordEncoder.matches(userUpdateDto.getPassword(), user.getPassword())){
+            throw new CustomException(PASSWORD_NOT_CORRECT);
         }
+
+        user.update(userUpdateDto.getName(), new_password_encode);
+
+
+        if(file.isEmpty()) {
+           throw new CustomException(IMAGE_NOT_FOUND);
+       }
 
         //사진 업로드
         String absolutePath = new File("").getAbsolutePath() + "\\";
-
         String path = "profile" + File.separator; //current_date
-
         File folder = new File(path);
 
         if(!folder.exists()) {
             folder.mkdirs();
         }
 
-        String originalFileExtension;
+        String originalFileExtension = null;
         String contentType = file.getContentType();
 
-        if(contentType.contains("image/jpeg"))
+        if(contentType.contains("image/jpeg") || contentType.contains("image/png")) {
             originalFileExtension = ".jpg";
-        else if(contentType.contains("image/png"))
-            originalFileExtension = ".png";
-
-        String new_file_name = String.valueOf(user_id);
-
-//            ImageDto imageDto = ImageDto.builder()
-//                    .origFileName(file.getOriginalFilename())
-//                    .filePath(path + File.separator + new_file_name)
-//                    .build();
-//
-//            Image image = imageDto.toEntity();
-
-            folder = new File(absolutePath + path + File.separator + new_file_name);
-            file.transferTo(folder);
-
-//            folder.setWritable(true);
-//            folder.setReadable(true);
         }
 
-    }
+        String new_file_name = user_id + originalFileExtension;
+
+        folder = new File(absolutePath + path + File.separator + new_file_name);
+        file.transferTo(folder);
+        }
+}
 
