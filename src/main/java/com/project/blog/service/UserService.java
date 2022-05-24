@@ -9,11 +9,12 @@ import com.project.blog.dto.Response.TokenResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.exception.ErrorCode;
-import com.project.blog.repository.ImageRepository;
 import com.project.blog.repository.UserRepository;
-import com.project.blog.service.Handler.FIleHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 import static com.project.blog.exception.ErrorCode.*;
@@ -33,8 +36,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
-    private final FIleHandler fIleHandler;
-    private final ImageRepository imageRepository;
 
     @Transactional
     public User join(UserSignupDto userSignupDto) {
@@ -71,31 +72,52 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto profile(Long user_id) {
+    public ResponseEntity<FileSystemResource> getProfile_img(Long user_id) throws IOException {
 
+        String profile_image = String.valueOf(findByUser_id(user_id).getPrifile_image());
+
+        Path path = new File("profile/" + profile_image).toPath();
+        FileSystemResource resource = new FileSystemResource(path);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
+                .body(resource);
+
+    }
+
+    @Transactional
+    public String getProfile_name(Long user_id) {
+
+        return findByUser_id(user_id).getName();
+
+    }
+
+    @Transactional
+    public UserResponseDto findByUser_id(Long user_id) {
         User user = userRepository.findById(user_id)
                 .orElseThrow(()-> new CustomException(USER_NOT_FIND));
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
-                .User_id(user_id)
-                .User_email(user.getEmail())
-                .User_name(user.getName())
+                .user_id(user_id)
+                .email(user.getEmail())
+                .name(user.getName())
+                .prifile_image(user.getProfile_image())
+                .boards(user.getBoard())
                 .build();
 
         return userResponseDto;
     }
 
     @Transactional
-    public void updateProfile(Long user_id, MultipartFile file, UserUpdateDto userUpdateDto) throws IOException {
+    public void updateProfile(Long user_id, String name, String password, String newPassword, MultipartFile file) throws IOException {
 
-        //, String name, String password, String newPassword
         User user = userRepository.findById(user_id)
                 .orElseThrow(()-> new CustomException(USER_NOT_FIND));
 
-        UserUpdateDto.builder()
-                .name(userUpdateDto.getName())
-                .password(userUpdateDto.getPassword())
-                .newPassword(userUpdateDto.getNewPassword())
+        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                .name(name)
+                .password(password)
+                .newPassword(newPassword)
                 .build();
 
         String new_password_encode = passwordEncoder.encode(userUpdateDto.getNewPassword());
@@ -128,9 +150,11 @@ public class UserService {
         }
 
         String new_file_name = user_id + originalFileExtension;
+        user.profile_update(new_file_name);
 
         folder = new File(absolutePath + path + File.separator + new_file_name);
         file.transferTo(folder);
+
         }
 }
 
