@@ -1,11 +1,14 @@
 package com.project.blog.domain;
 
 import lombok.*;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Builder
@@ -31,13 +34,20 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private String refreshToken;
 
-//    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
-//    @JoinColumn(name = "board_id", updatable = true)
-//    private List<Board> board = new ArrayList<>();
+    @Column(nullable = true)
+    private String  profile_image;
+
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
+    @JoinColumn(name = "board_id", updatable = true)
+    private List<Board> board = new ArrayList<>();
 
     public void update(String name, String password){
         this.name = name;
         this.password = password;
+    }
+
+    public void profile_update(String profile_image) {
+        this.profile_image = profile_image;
     }
 
     @Override
