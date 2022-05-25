@@ -56,7 +56,6 @@ public class UserService {
         User user = userRepository.findByEmail(userLoginDto.getEmail())
                 .orElseThrow(() -> new CustomException(USER_NOT_FIND));
 
-
         if(!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.PASSWORD_NOT_CORRECT);
         }
@@ -86,9 +85,15 @@ public class UserService {
     }
 
     @Transactional
-    public String getProfile_name(Long user_id) {
+    public UserResponseDto getProfile_name(Long user_id) {
 
-        return findByUser_id(user_id).getName();
+        User user = userRepository.findById(user_id)
+                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
+
+        return UserResponseDto.builder()
+                .user_id(user_id)
+                .name(user.getName())
+                .build();
 
     }
 
