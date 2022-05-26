@@ -7,7 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class TokenResponseDto {
+public class UserLoginResponseDto {
+
+    private Long user_id;
     private String AccessToken;
     private String RefreshToken;
 }
