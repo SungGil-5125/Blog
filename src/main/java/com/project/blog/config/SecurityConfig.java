@@ -1,6 +1,6 @@
 package com.project.blog.config;
 
-import com.project.blog.config.jwt.JwtAuthenticationFilter;
+//import com.project.blog.config.jwt.JwtRequestFilter;
 import com.project.blog.config.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final TokenProvider tokenProvider;
+//    private final JwtRequestFilter jwtRequestFilter;
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -33,13 +33,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and()
                 .httpBasic().disable()
                 .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                //.and()
+                //.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
+//    @Bean(name = "multipartResolver")
+//    public CommonsMultipartResolver multipartResolver() {
+//        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+//        return multipartResolver;
+//    }
+
 }
