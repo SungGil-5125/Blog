@@ -3,7 +3,7 @@ package com.project.blog.controller;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
-import com.project.blog.dto.Response.TokenResponseDto;
+import com.project.blog.dto.Response.UserLoginResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping("/user/login")
-    public TokenResponseDto Login(@RequestBody UserLoginDto userLoginDto) {
+    public UserLoginResponseDto Login(@RequestBody UserLoginDto userLoginDto) {
         return userService.login(userLoginDto);
     }
 
