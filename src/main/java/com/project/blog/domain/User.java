@@ -1,7 +1,6 @@
 package com.project.blog.domain;
 
 import lombok.*;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -48,6 +47,10 @@ public class User implements UserDetails {
 
     public void profile_update(String profile_image) {
         this.profile_image = profile_image;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @Override
