@@ -9,11 +9,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class BoardCreateRequestDto {
+public class BoardCreateDto {
 
     private Long board_id;
     private User user_id;
     private String title;
+    private String board_image;
     private String content;
     private String date;
 
