@@ -5,6 +5,7 @@ import com.project.blog.domain.User;
 import com.project.blog.dto.Request.BoardCreateDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.repository.BoardRepository;
+import com.project.blog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,13 @@ import static com.project.blog.exception.ErrorCode.USER_NOT_FIND;
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public Board CreateBoard(MultipartFile file, BoardCreateDto boardCreateDto) throws Exception {
 
         Board board = boardCreateDto.toEntity();
+        board.userMapping();
 
         updateBoard_image(file);
 
@@ -38,7 +41,6 @@ public class BoardService {
 
     @Transactional
     public void updateBoard_image(MultipartFile file) throws IOException {
-
 
         if(file.isEmpty()) {
             throw new CustomException(IMAGE_NOT_FOUND);
