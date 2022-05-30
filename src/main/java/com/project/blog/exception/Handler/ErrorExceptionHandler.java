@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.validation.ConstraintViolationException;
 
+import static com.project.blog.exception.ErrorCode.HIBERNATE_ERROR;
 import static com.project.blog.exception.ErrorCode.USED_EMAIL;
 
 @RestControllerAdvice //view를 사용하지 않고, REST API로만 사용할 수 있다.
@@ -19,8 +20,8 @@ public class ErrorExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {ConstraintViolationException.class, DataIntegrityViolationException.class})
     protected ResponseEntity<ErrorResponse> handleDataException() { //hibernate 관련 에러를 처리한다.
-        log.error("handleDataException throw Exception : {}", USED_EMAIL);
-        return ErrorResponse.toResponseEntity(USED_EMAIL);
+        log.info("handleDataException throw Exception : {}", HIBERNATE_ERROR);
+        return ErrorResponse.toResponseEntity(HIBERNATE_ERROR);
     }
 
     @ExceptionHandler(value = {CustomException.class})
