@@ -42,6 +42,6 @@ out/
 /src/main/resources/application.yml
 
 ### 사진 ###
-/pictures
+/board_image
 /profile
 
