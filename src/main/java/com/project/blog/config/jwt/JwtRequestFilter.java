@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,6 +27,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
+@EnableWebSecurity(debug = true) //request가 올때마다 어떤 filter를 사용하는지 출력
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
@@ -35,7 +37,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @SneakyThrows
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = request.getHeader("Authorization");
+
+        String accessToken = request.getHeader("Authorization"); // 헤더 요청해서 값 얻기
         String refreshToken = request.getHeader("RefreshToken");
 
         if(accessToken != null && refreshToken != null && tokenProvider.getTokenType(accessToken).equals("accessToken")){
@@ -83,13 +86,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails = userService.loadUserByUsername(userEmail);
 
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            // UsernamePasswordAuthenticationToken은 추후 인증이 끝나고 SecurityContextHolder.getContext()에 등록될 Authentication 객체 이다.
             usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
         }catch (NullPointerException e) {
             throw new RuntimeException();
         }
     }
 
+    // 토큰 생성 해주는 메서드
     private String generateNewAccessToken(String refreshToken) {
         try {
             return tokenProvider.generateAccessToken(tokenProvider.getUserEmail(refreshToken));

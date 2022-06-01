@@ -16,6 +16,8 @@ import java.util.List;
 @Entity
 public class User implements UserDetails {
 
+    // 애플리케이션이 가지고 있는 유저 정보와 sping Security가 사용하는 Authentication(인증) 객체 사이의 어댑터이다.
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column
