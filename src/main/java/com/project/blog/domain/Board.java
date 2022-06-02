@@ -1,10 +1,10 @@
 package com.project.blog.domain;
 
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "board")
@@ -19,6 +19,7 @@ public class Board {
     private Long board_id;
 
     @ManyToOne(cascade = CascadeType.MERGE, targetEntity = User.class) // merge란 엔티티 상태를 병합할 때 연관된 엔티티도 모두 병합하는것을 의미함.
+    @OnDelete(action = OnDeleteAction.CASCADE) //user가 삭제 된다면 게시글도 삭제
     @JoinColumn(name = "user_id", updatable = false)
     private User user;
 
@@ -31,11 +32,8 @@ public class Board {
     @Column
     private String date;
 
-    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, orphanRemoval = true)
-    private List<Image> image = new ArrayList<>();
-
-    public void mapping(User user) {
-        this.user = user;
-        user.getBoard().add(this);
-    }
+//    public void userMapping(User user) {
+//        this.user = user;
+//        user.getBoard().add(this);
+//    }
 }
