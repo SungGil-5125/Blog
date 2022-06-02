@@ -27,7 +27,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-@EnableWebSecurity(debug = true) //request가 올때마다 어떤 filter를 사용하는지 출력
+//@EnableWebSecurity(debug = true) //request가 올때마다 어떤 filter를 사용하는지 출력
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;

@@ -1,4 +1,4 @@
-package com.project.blog.service.util;
+package com.project.blog.util;
 
 import com.project.blog.domain.User;
 import com.project.blog.exception.CustomException;
@@ -23,12 +23,14 @@ public class CurrentUserUtil {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(principal instanceof UserDetails) {
+            email = ((User) principal).getEmail();
+        } else {
             email = principal.toString();
         }
 
 //        String userEamil = ((UserDetails)principal).getUsername();
 
-//        log.info("userEmail : " + userEamil);
+        log.info("userEmail : " + email);
 
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(USER_NOT_FIND));
