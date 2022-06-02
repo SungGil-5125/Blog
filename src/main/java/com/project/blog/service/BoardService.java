@@ -1,24 +1,20 @@
 package com.project.blog.service;
 
 import com.project.blog.domain.Board;
-import com.project.blog.domain.Image;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.BoardCreateDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.repository.BoardRepository;
-import com.project.blog.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageReader;
 import java.io.File;
 import java.io.IOException;
 
 import static com.project.blog.exception.ErrorCode.IMAGE_NOT_FOUND;
-import static com.project.blog.exception.ErrorCode.USER_NOT_FIND;
 
 @Slf4j
 @Service
@@ -26,14 +22,12 @@ import static com.project.blog.exception.ErrorCode.USER_NOT_FIND;
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
-//    private final
+    private final UserService userService;
 
     @Transactional
-    public Board CreateBoard(String user_email, MultipartFile file, String title, String content, String date) throws IOException {
+    public Board CreateBoard(MultipartFile file, String title, String content, String date) throws IOException {
 
-        User user = userRepository.findByEmail(user_email)
-                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
+        User user = userService.CurrentUserUtil();
 
         BoardCreateDto boardCreateDto = BoardCreateDto.builder()
                 .title(title)
@@ -43,20 +37,20 @@ public class BoardService {
 
         Board board = boardCreateDto.toEntity(user);
 
-        updateBoard_image(user_email, file, board);
+        updateBoard_image(file, board, user);
 
         return boardRepository.save(board);
     }
 
     @Transactional
-    public void updateBoard_image(String user_email, MultipartFile file, Board board) throws IOException {
+    public void updateBoard_image(MultipartFile file, Board board, User user) throws IOException {
 
         if(file.isEmpty()) {
             throw new CustomException(IMAGE_NOT_FOUND);
         }
 
         String absolutePath = new File("").getAbsolutePath() + "\\";
-        String path = "board_image" +File.separator + user_email + File.separator; //current_date
+        String path = "board_image" +File.separator + user.getEmail() + File.separator; //current_date
         File folder = new File(path);
 
         if (!folder.exists()) {
@@ -74,12 +68,11 @@ public class BoardService {
 
         folder = new File(absolutePath + path + File.separator + file_name);
 
-        Image image = Image.builder()
-                .board(board)
-                .url(String.valueOf(folder))
-                .build();
-
-
+//        Image image = Image.builder()
+//                .board(board)
+//                .url(String.valueOf(folder))
+//                .build();
+//
 
         file.transferTo(folder);
     }
