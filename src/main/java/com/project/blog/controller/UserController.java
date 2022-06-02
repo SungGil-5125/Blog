@@ -5,14 +5,17 @@ import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.dto.Response.UserLoginResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
+import com.project.blog.service.CustomUserService;
 import com.project.blog.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,5 +57,11 @@ public class UserController {
             @RequestParam(value = "newPassword") String newPassword,
             @RequestParam MultipartFile file) throws IOException {
         userService.updateProfile(user_id, name, password, newPassword, file);
+    }
+
+    @GetMapping("/username")
+    @ResponseBody
+    public String CurrentUserName(Principal principal) {
+        return principal.getName();
     }
 }
