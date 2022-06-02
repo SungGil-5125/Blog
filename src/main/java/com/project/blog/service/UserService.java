@@ -5,11 +5,12 @@ import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.dto.Request.UserUpdateDto;
-import com.project.blog.dto.Response.TokenResponseDto;
+import com.project.blog.dto.Response.UserLoginResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.exception.ErrorCode;
 import com.project.blog.repository.UserRepository;
+import com.project.blog.service.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -36,6 +37,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final CurrentUserUtil currentUserUtil;
 
     @Transactional
     public User join(UserSignupDto userSignupDto) {
@@ -52,7 +54,7 @@ public class UserService {
     }
 
     @Transactional
-    public TokenResponseDto login(UserLoginDto userLoginDto) {
+    public UserLoginResponseDto login(UserLoginDto userLoginDto) {
         User user = userRepository.findByEmail(userLoginDto.getEmail())
                 .orElseThrow(() -> new CustomException(USER_NOT_FIND));
 
@@ -60,10 +62,13 @@ public class UserService {
             throw new CustomException(ErrorCode.PASSWORD_NOT_CORRECT);
         }
 
-        String AccessToken = tokenProvider.createAccessTokenDto(userLoginDto.getEmail());
-        String RefreshToken = tokenProvider.createRefreshToken(userLoginDto.getEmail());
+        final String AccessToken = tokenProvider.generateAccessToken(user.getEmail()); //accessToken 생성
+        final String RefreshToken = tokenProvider.generateRefreshToken(user.getEmail()); //freshToken 생성
 
-        return TokenResponseDto.builder()
+        user.updateRefreshToken(RefreshToken);
+
+        return UserLoginResponseDto.builder()
+                .user_id(user.getUser_id())
                 .AccessToken(AccessToken)
                 .RefreshToken(RefreshToken)
                 .build();
@@ -113,6 +118,10 @@ public class UserService {
         return userResponseDto;
     }
 
+    public User CurrentUserUtil() {
+        return currentUserUtil.getCurrentUser();
+    }
+
     @Transactional
     public void updateProfile(Long user_id, String name, String password, String newPassword, MultipartFile file) throws IOException {
 
@@ -133,32 +142,42 @@ public class UserService {
 
         user.update(userUpdateDto.getName(), new_password_encode);
 
+        updateProfile_image(user_id, file);
 
-        if(file.isEmpty()) {
-           throw new CustomException(IMAGE_NOT_FOUND);
-       }
-
-        //사진 업로드
-        String absolutePath = new File("").getAbsolutePath() + "\\";
-        String path = "profile" + File.separator; //current_date
-        File folder = new File(path);
-
-        if(!folder.exists()) {
-            folder.mkdirs();
         }
 
-        String originalFileExtension = null;
-        String contentType = file.getContentType();
+        @Transactional
+        public void updateProfile_image(Long user_id, MultipartFile file) throws IOException {
 
-        if(contentType.contains("image/jpeg") || contentType.contains("image/png")) {
-            originalFileExtension = ".jpg";
-        }
+            User user = userRepository.findById(user_id)
+                    .orElseThrow(()-> new CustomException(USER_NOT_FIND));
 
-        String new_file_name = user_id + originalFileExtension;
-        user.profile_update(new_file_name);
+            if(file.isEmpty()) {
+                throw new CustomException(IMAGE_NOT_FOUND);
+            }
 
-        folder = new File(absolutePath + path + File.separator + new_file_name);
-        file.transferTo(folder);
+            //사진 업로드
+            String absolutePath = new File("").getAbsolutePath() + "\\";
+            String path = "profile" + File.separator; //current_date
+            File folder = new File(path);
+
+            if(!folder.exists()) {
+                folder.mkdirs();
+            }
+
+            String originalFileExtension = null;
+            String contentType = file.getContentType();
+
+            if(contentType.contains("image/jpeg") || contentType.contains("image/png")) {
+                originalFileExtension = ".jpg";
+            }
+
+            String new_file_name = user_id + originalFileExtension;
+            user.profile_update(new_file_name);
+
+            folder = new File(absolutePath + path + File.separator + new_file_name);
+            file.transferTo(folder);
+
 
         }
 }
