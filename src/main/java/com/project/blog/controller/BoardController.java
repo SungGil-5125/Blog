@@ -18,16 +18,15 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @PostMapping("{user_email}/board/write")
+    @PostMapping("board/write")
     public Board CreateBoard(
-            @PathVariable("user_email") String user_email,
             @RequestParam MultipartFile file,
             @RequestParam(value = "title") String title,
             @RequestParam(value = "content") String content,
             @RequestParam(value = "date") String date
     ) throws Exception {
 
-        return boardService.CreateBoard(user_email, file, title, content, date);
+        return boardService.CreateBoard(file, title, content, date);
 
     }
 
