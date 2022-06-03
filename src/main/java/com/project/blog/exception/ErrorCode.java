@@ -20,6 +20,7 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
     PASSWORD_NOT_CORRECT(NOT_FOUND, "비밀번호가 맞지 않습니다."),
     IMAGE_NOT_FOUND(NOT_FOUND, "이미지가 선택되지 않았습니다."),
+    BOARD_NOT_FOUND(NOT_FOUND, "블로그가 없습니다."),
     HIBERNATE_ERROR(NOT_FOUND, "hibernate Exception"),
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
