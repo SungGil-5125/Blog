@@ -3,6 +3,7 @@ package com.project.blog.service;
 import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.BoardCreateDto;
+import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 
+import static com.project.blog.exception.ErrorCode.BOARD_NOT_FOUND;
 import static com.project.blog.exception.ErrorCode.IMAGE_NOT_FOUND;
 
 @Slf4j
@@ -40,6 +42,21 @@ public class BoardService {
         updateBoard_image(file, board, user);
 
         return boardRepository.save(board);
+    }
+
+    @Transactional
+    public BoardResponseDto BoardIn(Long board_id) {
+
+        Board board = boardRepository.findById(board_id)
+                .orElseThrow(()-> new CustomException(BOARD_NOT_FOUND));
+
+        return BoardResponseDto.builder()
+                .board_id(board.getBoard_id())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .date(board.getDate())
+                .user(board.getUser())
+                .build();
     }
 
     @Transactional

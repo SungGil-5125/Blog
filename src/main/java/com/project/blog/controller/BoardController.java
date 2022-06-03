@@ -1,18 +1,12 @@
 package com.project.blog.controller;
 
-import com.project.blog.domain.Board;
-import com.project.blog.domain.User;
-import com.project.blog.dto.Request.BoardCreateDto;
+import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.response.ResponseService;
 import com.project.blog.response.result.CommonResultResponse;
 import com.project.blog.service.BoardService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,9 +28,14 @@ public class BoardController {
 
     }
 
-    // 이미지 여러개는 for문 조지면 될려나
-
     // 게시글 보기
+    @GetMapping("/board/{board_id}")
+    public BoardResponseDto BlogIn(@PathVariable("board_id") Long board_id) {
+        return boardService.BoardIn(board_id);
+    }
+
+
+    // 이미지 여러개는 for문 조지면 될려나
 
     // 전체 게시그 보기
 
