@@ -10,7 +10,7 @@ import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.exception.ErrorCode;
 import com.project.blog.repository.UserRepository;
-import com.project.blog.service.util.CurrentUserUtil;
+import com.project.blog.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -69,19 +69,32 @@ public class UserService {
 
         return UserLoginResponseDto.builder()
                 .user_id(user.getUser_id())
-                .AccessToken(AccessToken)
                 .RefreshToken(RefreshToken)
+                .AccessToken(AccessToken)
                 .build();
 
     }
 
     @Transactional
-    public ResponseEntity<FileSystemResource> getProfile_img(Long user_id) throws IOException {
+    public void Logout() {
+        User user = CurrentUserUtil();
+        user.updateRefreshToken(null);
+    }
 
-        String profile_image = String.valueOf(findByUser_id(user_id).getPrifile_image());
+    @Transactional
+    public ResponseEntity<FileSystemResource> getProfile_img() throws IOException {
+
+        User user = CurrentUserUtil();
+
+        String profile_image = String.valueOf(findByUser_id(user.getUser_id()).getPrifile_image());
 
         Path path = new File("profile/" + profile_image).toPath();
         FileSystemResource resource = new FileSystemResource(path);
+
+        if(!resource.exists()) {
+            throw new CustomException(IMAGE_NOT_FOUND);
+        }
+
 
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
@@ -90,13 +103,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDto getProfile_name(Long user_id) {
+    public UserResponseDto getProfile_name() {
 
-        User user = userRepository.findById(user_id)
-                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
+        User user = CurrentUserUtil();
 
         return UserResponseDto.builder()
-                .user_id(user_id)
+                .user_id(user.getUser_id())
                 .name(user.getName())
                 .build();
 
@@ -123,10 +135,9 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfile(Long user_id, String name, String password, String newPassword, MultipartFile file) throws IOException {
+    public void updateProfile(String name, String password, String newPassword, MultipartFile file) throws IOException {
 
-        User user = userRepository.findById(user_id)
-                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
+        User user = CurrentUserUtil();
 
         UserUpdateDto userUpdateDto = UserUpdateDto.builder()
                 .name(name)
@@ -142,7 +153,7 @@ public class UserService {
 
         user.update(userUpdateDto.getName(), new_password_encode);
 
-        updateProfile_image(user_id, file);
+        updateProfile_image(user.getUser_id(), file);
 
         }
 
