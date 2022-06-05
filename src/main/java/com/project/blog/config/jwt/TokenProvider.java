@@ -10,12 +10,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SignatureException;
-import java.util.Base64;
 import java.util.Date;
 
 import static com.project.blog.exception.ErrorCode.REFRESH_TOKEN_EXPIRATION;
@@ -45,17 +43,13 @@ public class TokenProvider {
         String value;
     }
 
-//    @PostConstruct
-//    protected Key getSigningKey(String secretKey) {
-//        return secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-//    }
-
     private Key getSigningKey(String secretKey){
         byte keyByte[]=secretKey.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyByte);
     }
 
-    public Claims extractAllClaims(String token) throws ExpiredJwtException, IllegalStateException, MalformedInputException, SignatureException, UnsupportedOperationException {
+    // 내용 추출 메서드
+    public Claims extractAllClaims(String token) throws ExpiredJwtException, IllegalStateException, UnsupportedOperationException {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey(secretKey))
                 .build()
@@ -68,13 +62,12 @@ public class TokenProvider {
             throw new CustomException(REFRESH_TOKEN_EXPIRATION);
         }
 
-        return extractAllClaims(token).get(TokenClaimName.TOKEN_TYPE.value, String.class);
+        return extractAllClaims(token).get(TokenClaimName.USER_EMAIL.value, String.class);
     }
 
-    public String getTokenType(String token) throws MalformedInputException, SignatureException {
+    public String getTokenType(String token) {
         return extractAllClaims(token).get(TokenClaimName.TOKEN_TYPE.value, String.class);
     }
-
 
     public Boolean isTokenExpired(String token) {
         try {
@@ -106,5 +99,8 @@ public class TokenProvider {
         return doGenerateToken(email, TokenType.REFRESH_TOKEN, REFRESH_TOKEN_EXPIRED_TIME);
     }
 
+//    private String getUserPk(String token) {
+//        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+//    }
 
 }
