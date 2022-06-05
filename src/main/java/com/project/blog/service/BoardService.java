@@ -60,6 +60,15 @@ public class BoardService {
     }
 
     @Transactional
+    public void DeleteBlog(Long board_id) {
+
+        Board board = boardRepository.findById(board_id)
+                .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
+
+        boardRepository.delete(board);
+    }
+
+    @Transactional
     public void updateBoard_image(MultipartFile file, Board board, User user) throws IOException {
 
         if(file.isEmpty()) {

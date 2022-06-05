@@ -34,10 +34,16 @@ public class BoardController {
         return boardService.BoardIn(board_id);
     }
 
+    // 게시글 삭제
+    @DeleteMapping("/Delete/board/{board_id}")
+    public CommonResultResponse DeleteBlog(@PathVariable("board_id") Long board_id) {
+        boardService.DeleteBlog(board_id);
+        return responseService.getSuccessResult();
+    }
 
     // 이미지 여러개는 for문 조지면 될려나
 
-    // 전체 게시그 보기
+    // 전체 게시글 보기
 
 
 
