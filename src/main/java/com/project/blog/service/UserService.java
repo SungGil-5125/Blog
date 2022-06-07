@@ -95,7 +95,6 @@ public class UserService {
             throw new CustomException(IMAGE_NOT_FOUND);
         }
 
-
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
                 .body(resource);
@@ -124,7 +123,6 @@ public class UserService {
                 .email(user.getEmail())
                 .name(user.getName())
                 .prifile_image(user.getProfile_image())
-                .boards(user.getBoard())
                 .build();
 
         return userResponseDto;
@@ -181,6 +179,10 @@ public class UserService {
 
             if(contentType.contains("image/jpeg") || contentType.contains("image/png")) {
                 originalFileExtension = ".jpg";
+            }
+
+            if(contentType.contains("image/gif")) {
+                originalFileExtension = ".gif";
             }
 
             String new_file_name = user_id + originalFileExtension;
