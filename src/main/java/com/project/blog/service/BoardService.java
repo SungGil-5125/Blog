@@ -3,6 +3,7 @@ package com.project.blog.service;
 import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.BoardCreateDto;
+import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.repository.BoardRepository;
@@ -14,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.project.blog.exception.ErrorCode.BOARD_NOT_FOUND;
 import static com.project.blog.exception.ErrorCode.IMAGE_NOT_FOUND;
@@ -26,6 +29,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final UserService userService;
 
+    // 블로그 생성
     @Transactional
     public Board CreateBoard(MultipartFile file, String title, String content, String date) throws IOException {
 
@@ -37,13 +41,14 @@ public class BoardService {
                 .date(date)
                 .build();
 
-        Board board = boardCreateDto.toEntity(user);
+        Board board = new Board(boardCreateDto, user);
 
         updateBoard_image(file, board, user);
 
         return boardRepository.save(board);
     }
 
+    // 블로그 상세 보기
     @Transactional
     public BoardResponseDto BoardIn(Long board_id) {
 
@@ -60,6 +65,31 @@ public class BoardService {
     }
 
     @Transactional
+    public BoardListResponseDto getAllBoards() {
+
+        List<Board> findByAllBoards = boardRepository.findAllByBoard();
+        List<BoardResponseDto> data = new ArrayList<>();
+
+        for(int i = 0; i < findByAllBoards.size(); i++){
+            Board board = findByAllBoards.get(i);
+
+            Long board_id = board.getBoard_id();
+            User user = board.getUser();
+            String title = board.getTitle();
+            String content = board.getContent();
+            String date = board.getDate();
+
+            BoardResponseDto boardResponseDto = new BoardResponseDto(board_id, user, title, content, date);
+            data.add(boardResponseDto);
+        }
+
+        BoardListResponseDto boardListResponseDto = new BoardListResponseDto(data);
+
+        return boardListResponseDto;
+    }
+
+    // 블로그 삭제
+    @Transactional
     public void DeleteBlog(Long board_id) {
 
         Board board = boardRepository.findById(board_id)
@@ -68,12 +98,13 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
+    // 블로그 사진 업로드 (image entity 수정 해야함)
     @Transactional
     public void updateBoard_image(MultipartFile file, Board board, User user) throws IOException {
-
-        if(file.isEmpty()) {
-            throw new CustomException(IMAGE_NOT_FOUND);
-        }
+//
+//        if(file.isEmpty()) {
+//            throw new CustomException(IMAGE_NOT_FOUND);
+//        }
 
         String absolutePath = new File("").getAbsolutePath() + "\\";
         String path = "board_image" +File.separator + user.getEmail() + File.separator; //current_date
@@ -90,15 +121,20 @@ public class BoardService {
             originalFileExtension = ".jpg";
         }
 
-        String file_name = file + originalFileExtension;
+        if(contentType.contains("image/gif")) {
+            originalFileExtension = ".gif";
+        }
 
-        folder = new File(absolutePath + path + File.separator + file_name);
+        log.error("board_id : " + board.getBoard_id());
 
-//        Image image = Image.builder()
-//                .board(board)
-//                .url(String.valueOf(folder))
-//                .build();
-//
+        String new_file_name = file + originalFileExtension;
+
+        /*
+        원래 파일이름이랑 user_id, board_id 저장하고
+        해당 값에 맞게 이미지 가져오는걸로
+         */
+
+        folder = new File(absolutePath + path + File.separator + new_file_name);
 
         file.transferTo(folder);
     }
