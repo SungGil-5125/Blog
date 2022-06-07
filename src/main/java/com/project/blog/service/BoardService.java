@@ -60,14 +60,14 @@ public class BoardService {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .date(board.getDate())
-                .user(board.getUser())
+                .user_name(board.getUser().getUsername())
                 .build();
     }
 
     @Transactional
     public BoardListResponseDto getAllBoards() {
 
-        List<Board> findByAllBoards = boardRepository.findAllByBoard();
+        List<Board> findByAllBoards = boardRepository.findAll();
         List<BoardResponseDto> data = new ArrayList<>();
 
         for(int i = 0; i < findByAllBoards.size(); i++){
@@ -79,7 +79,7 @@ public class BoardService {
             String content = board.getContent();
             String date = board.getDate();
 
-            BoardResponseDto boardResponseDto = new BoardResponseDto(board_id, user, title, content, date);
+            BoardResponseDto boardResponseDto = new BoardResponseDto(board_id, user.getName(), title, content, date);
             data.add(boardResponseDto);
         }
 

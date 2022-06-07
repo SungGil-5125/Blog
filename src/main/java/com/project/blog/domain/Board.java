@@ -1,5 +1,6 @@
 package com.project.blog.domain;
 
+import com.project.blog.dto.Request.BoardCreateDto;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -32,8 +33,10 @@ public class Board {
     @Column
     private String date;
 
-//    public void userMapping(User user) {
-//        this.user = user;
-//        user.getBoard().add(this);
-//    }
+    public Board(BoardCreateDto boardCreateDto, User user) {
+        this.user = user;
+        this.title = boardCreateDto.getTitle();
+        this.content = boardCreateDto.getContent();
+        this.date = boardCreateDto.getDate();
+    }
 }

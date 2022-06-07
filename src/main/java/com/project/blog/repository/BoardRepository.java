@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
-   List<Board> findAllByBoard();
+   List<Board> findAll();
 
 }

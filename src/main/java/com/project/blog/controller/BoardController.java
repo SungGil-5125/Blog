@@ -1,5 +1,6 @@
 package com.project.blog.controller;
 
+import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.response.ResponseService;
 import com.project.blog.response.result.CommonResultResponse;
@@ -41,10 +42,12 @@ public class BoardController {
         return responseService.getSuccessResult();
     }
 
+    // 전체 게시글 불러오기
+    @GetMapping("board")
+    public BoardListResponseDto showAllBlog() {
+        return boardService.getAllBoards();
+    }
+
     // 이미지 여러개는 for문 조지면 될려나
-
-    // 전체 게시글 보기
-
-
 
 }
