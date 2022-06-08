@@ -13,6 +13,6 @@ import java.util.List;
 @Builder
 public class BoardListResponseDto {
 
-    List<BoardResponseDto> data;
+    List<BoardResponseDto> blogs;
 
 }

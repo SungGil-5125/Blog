@@ -6,8 +6,12 @@ import com.project.blog.response.ResponseService;
 import com.project.blog.response.result.CommonResultResponse;
 import com.project.blog.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,6 +51,12 @@ public class BoardController {
     public BoardListResponseDto showAllBlog() {
         return boardService.getAllBoards();
     }
+
+    @GetMapping("board_image/{board_id}")
+    public ResponseEntity<FileSystemResource> showAllBlogImage(@PathVariable("board_id") Long board_id) throws IOException {
+        return boardService.getAllBoardsImage(board_id);
+    }
+
 
     // 이미지 여러개는 for문 조지면 될려나
 

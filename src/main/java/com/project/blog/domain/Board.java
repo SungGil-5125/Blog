@@ -33,10 +33,10 @@ public class Board {
     @Column
     private String date;
 
-    public Board(BoardCreateDto boardCreateDto, User user) {
-        this.user = user;
-        this.title = boardCreateDto.getTitle();
-        this.content = boardCreateDto.getContent();
-        this.date = boardCreateDto.getDate();
+    @Column
+    private String originFileName;
+
+    public void updateImage(String originFileName) {
+        this.originFileName = originFileName;
     }
 }

@@ -9,17 +9,21 @@ import com.project.blog.exception.CustomException;
 import com.project.blog.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.project.blog.exception.ErrorCode.BOARD_NOT_FOUND;
-import static com.project.blog.exception.ErrorCode.IMAGE_NOT_FOUND;
+import static com.project.blog.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -41,7 +45,10 @@ public class BoardService {
                 .date(date)
                 .build();
 
-        Board board = new Board(boardCreateDto, user);
+        Board board = boardCreateDto.toEntity(user);
+
+        System.out.println("board_id = " + board.getBoard_id());
+        System.out.println("board.getTitle() = " + board.getTitle());
 
         updateBoard_image(file, board, user);
 
@@ -64,11 +71,12 @@ public class BoardService {
                 .build();
     }
 
+    // 모든 게시글 보기
     @Transactional
     public BoardListResponseDto getAllBoards() {
 
         List<Board> findByAllBoards = boardRepository.findAll();
-        List<BoardResponseDto> data = new ArrayList<>();
+        List<BoardResponseDto> blogs = new ArrayList<>();
 
         for(int i = 0; i < findByAllBoards.size(); i++){
             Board board = findByAllBoards.get(i);
@@ -80,12 +88,36 @@ public class BoardService {
             String date = board.getDate();
 
             BoardResponseDto boardResponseDto = new BoardResponseDto(board_id, user.getName(), title, content, date);
-            data.add(boardResponseDto);
+            blogs.add(boardResponseDto);
         }
 
-        BoardListResponseDto boardListResponseDto = new BoardListResponseDto(data);
+        BoardListResponseDto boardListResponseDto = new BoardListResponseDto(blogs);
 
         return boardListResponseDto;
+    }
+
+    // 모든 게시글 사진
+    @Transactional
+    public ResponseEntity<FileSystemResource> getAllBoardsImage(Long board_id) throws IOException {
+
+        User user = userService.CurrentUserUtil();
+
+        Board board = boardRepository.findById(board_id)
+                        .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
+
+        String originUrl = board.getOriginFileName();
+
+        Path path = new File("board_image/" + user.getEmail() + "/" + originUrl).toPath();
+        FileSystemResource resource = new FileSystemResource(path);
+
+        if(!resource.exists()) {
+            throw new CustomException(IMAGE_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
+                .body(resource);
+
     }
 
     // 블로그 삭제
@@ -101,41 +133,35 @@ public class BoardService {
     // 블로그 사진 업로드 (image entity 수정 해야함)
     @Transactional
     public void updateBoard_image(MultipartFile file, Board board, User user) throws IOException {
-//
-//        if(file.isEmpty()) {
-//            throw new CustomException(IMAGE_NOT_FOUND);
-//        }
 
         String absolutePath = new File("").getAbsolutePath() + "\\";
-        String path = "board_image" +File.separator + user.getEmail() + File.separator; //current_date
+        String path = "board_image" + File.separator + user.getEmail() + File.separator; //current_date
         File folder = new File(path);
 
         if (!folder.exists()) {
             folder.mkdirs();
         }
 
-        String originalFileExtension = null;
         String contentType = file.getContentType();
 
-        if (contentType.contains("image/jpeg") || contentType.contains("image/png")) {
-            originalFileExtension = ".jpg";
+        if(contentType.contains("image/jpg") || contentType.contains("image/png") || contentType.contains("image/gif")) {
+
+            String originalFilename = file.getOriginalFilename();
+
+            board.updateImage(originalFilename);
+
+            folder = new File(absolutePath + path + File.separator + originalFilename);
+
+            file.transferTo(folder);
+
+        } else {
+            throw new CustomException(WRONG_IMAGE_EXTENSION);
         }
-
-        if(contentType.contains("image/gif")) {
-            originalFileExtension = ".gif";
-        }
-
-        log.error("board_id : " + board.getBoard_id());
-
-        String new_file_name = file + originalFileExtension;
 
         /*
         원래 파일이름이랑 user_id, board_id 저장하고
         해당 값에 맞게 이미지 가져오는걸로
          */
 
-        folder = new File(absolutePath + path + File.separator + new_file_name);
-
-        file.transferTo(folder);
     }
 }
