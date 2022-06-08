@@ -19,7 +19,7 @@ public class User implements UserDetails {
     // 애플리케이션이 가지고 있는 유저 정보와 sping Security가 사용하는 Authentication(인증) 객체 사이의 어댑터이다.
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     private Long user_id;
 
@@ -38,9 +38,9 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private String  profile_image;
 
-    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
-    @JoinColumn(name = "board_id", updatable = true)
-    private List<Board> board = new ArrayList<>();
+//    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
+//    @JoinColumn(name = "board_id", updatable = true)
+//    private List<Board> board = new ArrayList<>();
 
     public void update(String name, String password){
         this.name = name;
