@@ -12,6 +12,7 @@ public enum ErrorCode {
 
     /* 400 BAD_REQUEST : 잘못된 요청*/
     USED_EMAIL(BAD_REQUEST, "이미 사용하는 이메일입니다."),
+    WRONG_IMAGE_EXTENSION(BAD_REQUEST, "잘못된 이미지 확장자명입니다."),
 
     /* 403 UNAUTHORIZED : 인증되지 않은 사용자 */
     REFRESH_TOKEN_EXPIRATION(UNAUTHORIZED, "Refresh Token이 만료되었습니다."),
