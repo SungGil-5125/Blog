@@ -102,6 +102,27 @@ public class UserService {
     }
 
     @Transactional
+    public ResponseEntity<FileSystemResource> BoardProfileImage(Long user_id) throws IOException {
+
+        User user = userRepository.findById(user_id)
+                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
+
+        String profile_image = String.valueOf(findByUser_id(user.getUser_id()).getPrifile_image());
+
+        Path path = new File("profile/" + profile_image).toPath();
+        FileSystemResource resource = new FileSystemResource(path);
+
+        if(!resource.exists()) {
+            throw new CustomException(IMAGE_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
+                .body(resource);
+
+    }
+
+    @Transactional
     public UserResponseDto getProfile_name() {
 
         User user = CurrentUserUtil();
