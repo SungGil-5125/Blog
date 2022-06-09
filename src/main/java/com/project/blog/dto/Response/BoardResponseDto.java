@@ -11,6 +11,7 @@ import lombok.Getter;
 public class BoardResponseDto {
 
     private Long board_id;
+    private Long user_id;
     private String user_name;
     private String title;
     private String content;
