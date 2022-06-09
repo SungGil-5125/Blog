@@ -15,14 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import static com.project.blog.exception.ErrorCode.*;
 
 @Slf4j
@@ -46,9 +44,6 @@ public class BoardService {
                 .build();
 
         Board board = boardCreateDto.toEntity(user);
-
-        System.out.println("board_id = " + board.getBoard_id());
-        System.out.println("board.getTitle() = " + board.getTitle());
 
         updateBoard_image(file, board, user);
 
@@ -78,8 +73,7 @@ public class BoardService {
         List<Board> findByAllBoards = boardRepository.findAll();
         List<BoardResponseDto> blogs = new ArrayList<>();
 
-        for(int i = 0; i < findByAllBoards.size(); i++){
-            Board board = findByAllBoards.get(i);
+        for (Board board : findByAllBoards) {
 
             Long board_id = board.getBoard_id();
             User user = board.getUser();
@@ -87,9 +81,27 @@ public class BoardService {
             String content = board.getContent();
             String date = board.getDate();
 
-            BoardResponseDto boardResponseDto = new BoardResponseDto(board_id, user.getName(), title, content, date);
+//            BoardResponseDto boardResponseDto = new BoardResponseDto(board_id, user.getUser_id(), user.getName(), title, content, date);
+
+            BoardResponseDto boardResponseDto = BoardResponseDto.builder()
+                    .board_id(board_id)
+                    .user_name(user.getName())
+                    .user_id(user.getUser_id())
+                    .title(title)
+                    .content(content)
+                    .date(date)
+                    .build();
+
             blogs.add(boardResponseDto);
         }
+//
+//        for(int i = 0; i < findByAllBoards.size(); i++){
+//            Board board = findByAllBoards.get(i);
+//
+//
+//
+//
+//        }
 
         BoardListResponseDto boardListResponseDto = new BoardListResponseDto(blogs);
 
@@ -101,12 +113,9 @@ public class BoardService {
     public ResponseEntity<FileSystemResource> getAllBoardsImage(Long board_id) throws IOException {
 
         User user = userService.CurrentUserUtil();
-
         Board board = boardRepository.findById(board_id)
                         .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
-
         String originUrl = board.getOriginFileName();
-
         Path path = new File("board_image/" + user.getEmail() + "/" + originUrl).toPath();
         FileSystemResource resource = new FileSystemResource(path);
 
@@ -142,21 +151,13 @@ public class BoardService {
             folder.mkdirs();
         }
 
-        String contentType = file.getContentType();
+        String originalFilename = file.getOriginalFilename();
 
-        if(contentType.contains("image/jpg") || contentType.contains("image/png") || contentType.contains("image/gif")) {
+        board.updateImage(originalFilename);
 
-            String originalFilename = file.getOriginalFilename();
+        folder = new File(absolutePath + path + File.separator + originalFilename);
 
-            board.updateImage(originalFilename);
-
-            folder = new File(absolutePath + path + File.separator + originalFilename);
-
-            file.transferTo(folder);
-
-        } else {
-            throw new CustomException(WRONG_IMAGE_EXTENSION);
-        }
+        file.transferTo(folder);
 
         /*
         원래 파일이름이랑 user_id, board_id 저장하고
