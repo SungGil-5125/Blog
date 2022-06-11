@@ -40,6 +40,7 @@ out/
 
 ### yml ###
 /src/main/resources/application.yml
+/src/main/resources/aws.yml
 
 ### 사진 ###
 /board_image
