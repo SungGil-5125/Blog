@@ -9,6 +9,7 @@ import com.project.blog.exception.CustomException;
 import com.project.blog.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,22 +31,26 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserService userService;
+    private final S3Service s3Service;
+
+    @Value("${cloud.aws.s3.dir}")
+    private String dirName;
 
     // 블로그 생성
     @Transactional
-    public Board CreateBoard(MultipartFile file, String title, String content, String date) throws IOException {
+    public Board CreateBoard(MultipartFile file, BoardCreateDto boardCreateDto) throws IOException {
 
         User user = userService.CurrentUserUtil();
 
-        BoardCreateDto boardCreateDto = BoardCreateDto.builder()
-                .title(title)
-                .content(content)
-                .date(date)
-                .build();
+//        BoardCreateDto boardCreateDto = BoardCreateDto.builder()
+//                .title(title)
+//                .content(content)
+//                .date(date)
+//                .build();
 
         Board board = boardCreateDto.toEntity(user);
 
-        updateBoard_image(file, board, user);
+        s3Service.upload(file, dirName);
 
         return boardRepository.save(board);
     }
@@ -81,8 +86,6 @@ public class BoardService {
             String content = board.getContent();
             String date = board.getDate();
 
-//            BoardResponseDto boardResponseDto = new BoardResponseDto(board_id, user.getUser_id(), user.getName(), title, content, date);
-
             BoardResponseDto boardResponseDto = BoardResponseDto.builder()
                     .board_id(board_id)
                     .user_name(user.getName())
@@ -94,14 +97,6 @@ public class BoardService {
 
             blogs.add(boardResponseDto);
         }
-//
-//        for(int i = 0; i < findByAllBoards.size(); i++){
-//            Board board = findByAllBoards.get(i);
-//
-//
-//
-//
-//        }
 
         BoardListResponseDto boardListResponseDto = new BoardListResponseDto(blogs);
 
@@ -112,11 +107,11 @@ public class BoardService {
     @Transactional
     public ResponseEntity<FileSystemResource> getAllBoardsImage(Long board_id) throws IOException {
 
-        User user = userService.CurrentUserUtil();
         Board board = boardRepository.findById(board_id)
                         .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
         String originUrl = board.getOriginFileName();
-        Path path = new File("board_image/" + user.getEmail() + "/" + originUrl).toPath();
+        Path path = new File("board_image" + "/" + originUrl).toPath();
+
         FileSystemResource resource = new FileSystemResource(path);
 
         if(!resource.exists()) {

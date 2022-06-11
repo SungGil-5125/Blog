@@ -1,5 +1,6 @@
 package com.project.blog.controller;
 
+import com.project.blog.dto.Request.BoardCreateDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.response.ResponseService;
@@ -22,13 +23,11 @@ public class BoardController {
 
     @PostMapping("board/write")
     public CommonResultResponse CreateBoard(
-            @RequestParam MultipartFile file,
-            @RequestParam(value = "title") String title,
-            @RequestParam(value = "content") String content,
-            @RequestParam(value = "date") String date
-    ) throws Exception {
+            @RequestPart(value = "file", required = false) MultipartFile multipartFile,
+            @RequestPart(value = "boardCreateDto") BoardCreateDto boardCreateDto
+            ) throws Exception {
 
-        boardService.CreateBoard(file, title, content, date);
+        boardService.CreateBoard(multipartFile, boardCreateDto);
         return responseService.getSuccessResult();
 
     }
