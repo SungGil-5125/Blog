@@ -33,7 +33,7 @@ public class BoardService {
     private final UserService userService;
     private final S3Service s3Service;
 
-    @Value("${cloud.aws.s3.dir}")
+    @Value("${cloud.aws.s3.board_ dir}")
     private String dirName;
 
     // 블로그 생성
