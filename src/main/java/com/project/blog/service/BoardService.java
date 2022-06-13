@@ -33,7 +33,7 @@ public class BoardService {
     private final UserService userService;
     private final S3Service s3Service;
 
-    @Value("${cloud.aws.s3.board_ dir}")
+    @Value("${cloud.aws.s3.board_dir}")
     private String dirName;
 
     // 블로그 생성
@@ -48,9 +48,9 @@ public class BoardService {
 //                .date(date)
 //                .build();
 
-        Board board = boardCreateDto.toEntity(user);
+        String uploadUrl = s3Service.upload(file, dirName);
 
-        s3Service.upload(file, dirName);
+        Board board = boardCreateDto.toEntity(user, uploadUrl);
 
         return boardRepository.save(board);
     }
@@ -109,7 +109,7 @@ public class BoardService {
 
         Board board = boardRepository.findById(board_id)
                         .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
-        String originUrl = board.getOriginFileName();
+        String originUrl = board.getUrl();
         Path path = new File("board_image" + "/" + originUrl).toPath();
 
         FileSystemResource resource = new FileSystemResource(path);
@@ -133,31 +133,31 @@ public class BoardService {
 
         boardRepository.delete(board);
     }
-
-    // 블로그 사진 업로드 (image entity 수정 해야함)
-    @Transactional
-    public void updateBoard_image(MultipartFile file, Board board, User user) throws IOException {
-
-        String absolutePath = new File("").getAbsolutePath() + "\\";
-        String path = "board_image" + File.separator + user.getEmail() + File.separator; //current_date
-        File folder = new File(path);
-
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-        String originalFilename = file.getOriginalFilename();
-
-        board.updateImage(originalFilename);
-
-        folder = new File(absolutePath + path + File.separator + originalFilename);
-
-        file.transferTo(folder);
-
-        /*
-        원래 파일이름이랑 user_id, board_id 저장하고
-        해당 값에 맞게 이미지 가져오는걸로
-         */
-
-    }
+//
+//    // 블로그 사진 업로드 (image entity 수정 해야함)
+//    @Transactional
+//    public void updateBoard_image(MultipartFile file, Board board, User user) throws IOException {
+//
+//        String absolutePath = new File("").getAbsolutePath() + "\\";
+//        String path = "board_image" + File.separator + user.getEmail() + File.separator; //current_date
+//        File folder = new File(path);
+//
+//        if (!folder.exists()) {
+//            folder.mkdirs();
+//        }
+//
+//        String originalFilename = file.getOriginalFilename();
+//
+//        board.updateImage(originalFilename);
+//
+//        folder = new File(absolutePath + path + File.separator + originalFilename);
+//
+//        file.transferTo(folder);
+//
+//        /*
+//        원래 파일이름이랑 user_id, board_id 저장하고
+//        해당 값에 맞게 이미지 가져오는걸로
+//         */
+//
+//    }
 }

@@ -18,12 +18,13 @@ public class BoardCreateDto {
     private String content;
     private String date;
 
-    public Board toEntity(User user) {
+    public Board toEntity(User user, String url) {
         return Board.builder()
                 .title(title)
                 .content(content)
                 .date(date)
                 .user(user)
+                .url(url)
                 .build();
     }
 

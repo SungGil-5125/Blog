@@ -34,9 +34,9 @@ public class Board {
     private String date;
 
     @Column
-    private String originFileName;
+    private String url;
 
-    public void updateImage(String originFileName) {
-        this.originFileName = originFileName;
+    public void updateImage(String url) {
+        this.url = url;
     }
 }
