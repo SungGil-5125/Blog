@@ -6,25 +6,19 @@ import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.dto.Request.UserUpdateDto;
 import com.project.blog.dto.Response.UserLoginResponseDto;
-import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.exception.ErrorCode;
 import com.project.blog.repository.UserRepository;
 import com.project.blog.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 import static com.project.blog.exception.ErrorCode.*;
@@ -38,7 +32,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
     private final CurrentUserUtil currentUserUtil;
+    private final S3Service s3Service;
 
+    @Value("${cloud.aws.s3.profile_dir}")
+    private String dir;
+
+    // 회원가입
     @Transactional
     public User join(UserSignupDto userSignupDto) {
         Optional<User> Email = userRepository.findByEmail(userSignupDto.getEmail());
@@ -53,10 +52,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // 로그인
     @Transactional
     public UserLoginResponseDto login(UserLoginDto userLoginDto) {
         User user = userRepository.findByEmail(userLoginDto.getEmail())
-                .orElseThrow(() -> new CustomException(USER_NOT_FIND));
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         if(!passwordEncoder.matches(userLoginDto.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.PASSWORD_NOT_CORRECT);
@@ -75,84 +75,14 @@ public class UserService {
 
     }
 
+    // 로그아웃
     @Transactional
     public void Logout() {
         User user = CurrentUserUtil();
         user.updateRefreshToken(null);
     }
 
-    @Transactional
-    public ResponseEntity<FileSystemResource> getProfile_img() throws IOException {
-
-        User user = CurrentUserUtil();
-
-        String profile_image = String.valueOf(findByUser_id(user.getUser_id()).getPrifile_image());
-
-        Path path = new File("profile/" + profile_image).toPath();
-        FileSystemResource resource = new FileSystemResource(path);
-
-        if(!resource.exists()) {
-            throw new CustomException(IMAGE_NOT_FOUND);
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
-                .body(resource);
-
-    }
-
-    @Transactional
-    public ResponseEntity<FileSystemResource> BoardProfileImage(Long user_id) throws IOException {
-
-        User user = userRepository.findById(user_id)
-                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
-
-        String profile_image = String.valueOf(findByUser_id(user.getUser_id()).getPrifile_image());
-
-        Path path = new File("profile/" + profile_image).toPath();
-        FileSystemResource resource = new FileSystemResource(path);
-
-        if(!resource.exists()) {
-            throw new CustomException(IMAGE_NOT_FOUND);
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
-                .body(resource);
-
-    }
-
-    @Transactional
-    public UserResponseDto getProfile_name() {
-
-        User user = CurrentUserUtil();
-
-        return UserResponseDto.builder()
-                .user_id(user.getUser_id())
-                .name(user.getName())
-                .build();
-
-    }
-
-    @Transactional
-    public UserResponseDto findByUser_id(Long user_id) {
-        User user = userRepository.findById(user_id)
-                .orElseThrow(()-> new CustomException(USER_NOT_FIND));
-
-        UserResponseDto userResponseDto = UserResponseDto.builder()
-                .user_id(user_id)
-                .email(user.getEmail())
-                .name(user.getName())
-                .prifile_image(user.getProfile_image())
-                .build();
-
-        return userResponseDto;
-    }
-
-    public User CurrentUserUtil() {
-        return currentUserUtil.getCurrentUser();
-    }
-
+    // 프로필 수정
     @Transactional
     public void updateProfile(String name, String password, String newPassword, MultipartFile file) throws IOException {
 
@@ -172,47 +102,46 @@ public class UserService {
 
         user.update(userUpdateDto.getName(), new_password_encode);
 
-        updateProfile_image(user.getUser_id(), file);
+        String uploadUrl = s3Service.upload(file, dir);
 
+        user.updateUrl("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/" + uploadUrl);
+
+    }
+
+    // 회원 이미지 가져오기
+    @Transactional
+    public String getProfile_img() throws IOException {
+
+        User user = CurrentUserUtil();
+        String profileUrl = user.getUrl();
+
+        if(profileUrl == null) {
+            return "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/IMG_5713.jpg";
         }
 
-        @Transactional
-        public void updateProfile_image(Long user_id, MultipartFile file) throws IOException {
+        return profileUrl;
+    }
 
-            User user = userRepository.findById(user_id)
-                    .orElseThrow(()-> new CustomException(USER_NOT_FIND));
+    // 전체 게시글에 회원 이미지 보여주기
+    @Transactional
+    public String BoardProfileImage(Long user_id) {
 
-            if(file.isEmpty()) {
-                throw new CustomException(IMAGE_NOT_FOUND);
-            }
+        User user = userRepository.findById(user_id)
+                .orElseThrow(()-> new CustomException(USER_NOT_FOUND));
 
-            //사진 업로드
-            String absolutePath = new File("").getAbsolutePath() + "\\";
-            String path = "profile" + File.separator; //current_date
-            File folder = new File(path);
+        String profileUrl = user.getUrl();
 
-            if(!folder.exists()) {
-                folder.mkdirs();
-            }
-
-            String originalFileExtension = null;
-            String contentType = file.getContentType();
-
-            if(contentType.contains("image/jpeg") || contentType.contains("image/png")) {
-                originalFileExtension = ".jpg";
-            }
-
-            if(contentType.contains("image/gif")) {
-                originalFileExtension = ".gif";
-            }
-
-            String new_file_name = user_id + originalFileExtension;
-            user.profile_update(new_file_name);
-
-            folder = new File(absolutePath + path + File.separator + new_file_name);
-            file.transferTo(folder);
-
-
+        if(profileUrl == null) {
+            return "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/IMG_5713.jpg";
         }
+
+        return profileUrl;
+    }
+
+    // 토큰으로 현재 user 가져오기
+    public User CurrentUserUtil() {
+        return currentUserUtil.getCurrentUser();
+    }
+
 }
 
