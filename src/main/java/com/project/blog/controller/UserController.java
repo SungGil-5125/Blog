@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.io.IOException;
 
 @RestController
@@ -54,17 +53,17 @@ public class UserController {
     }
 
     @GetMapping("/user_image")
-    public ResponseEntity<FileSystemResource> user_profile() throws IOException {
+    public String user_profile() throws IOException {
         return userService.getProfile_img();
     }
 
     @GetMapping("/user_name")
-    public UserResponseDto user_profile_name() {
-        return userService.getProfile_name();
+    public User current_user() {
+        return userService.CurrentUserUtil();
     }
 
     @GetMapping("user_image/{user_id}")
-    public ResponseEntity<FileSystemResource> BoardProfileImage(@PathVariable("user_id") Long user_id) throws IOException {
+    public String BoardProfileImage(@PathVariable("user_id") Long user_id) throws IOException {
         return userService.BoardProfileImage(user_id);
     }
 }
