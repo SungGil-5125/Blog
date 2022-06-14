@@ -2,15 +2,13 @@ package com.project.blog.dto.Request;
 
 import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @Builder
+@ToString
 public class BoardCreateDto {
 
     private Long board_id;
@@ -24,7 +22,7 @@ public class BoardCreateDto {
                 .content(content)
                 .date(date)
                 .user(user)
-                .url(url)
+                .url("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/board_image/" + url)
                 .build();
     }
 
