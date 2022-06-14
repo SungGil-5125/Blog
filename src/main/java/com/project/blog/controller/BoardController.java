@@ -1,14 +1,15 @@
 package com.project.blog.controller;
 
-import com.project.blog.dto.Request.BoardCreateDto;
+import com.project.blog.dto.Response.AllBoardListResponseDto;
+import com.project.blog.dto.Response.AllBoardResponseDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.response.ResponseService;
 import com.project.blog.response.result.CommonResultResponse;
 import com.project.blog.service.BoardService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class BoardController {
 
     private final BoardService boardService;
@@ -24,10 +26,13 @@ public class BoardController {
     @PostMapping("board/write")
     public CommonResultResponse CreateBoard(
             @RequestPart(value = "file", required = false) MultipartFile multipartFile,
-            @RequestPart(value = "boardCreateDto") BoardCreateDto boardCreateDto
+//            @RequestPart(value = "boardCreateDto") BoardCreateDto boardCreateDto
+            @RequestParam(value = "title") String title,
+            @RequestParam(value = "content") String content,
+            @RequestParam(value = "date") String date
             ) throws Exception {
 
-        boardService.CreateBoard(multipartFile, boardCreateDto);
+        boardService.CreateBoard(multipartFile, title, content, date);
         return responseService.getSuccessResult();
 
     }
@@ -47,16 +52,24 @@ public class BoardController {
 
     // 전체 게시글 불러오기
     @GetMapping("board")
-    public BoardListResponseDto showAllBlog() {
+    public AllBoardListResponseDto showAllBlog() {
         return boardService.getAllBoards();
     }
 
     @GetMapping("board_image/{board_id}")
-    public ResponseEntity<FileSystemResource> showAllBlogImage(@PathVariable("board_id") Long board_id) throws IOException {
+    public String showAllBlogImage(@PathVariable("board_id") Long board_id) throws IOException {
         return boardService.getAllBoardsImage(board_id);
     }
 
+    @GetMapping("board/myBoard")
+    public BoardListResponseDto getMyBoards() {
+       return boardService.getMyBoards();
+    }
 
-    // 이미지 여러개는 for문 조지면 될려나
+    @GetMapping("/otherBoard/{user_id}")
+    public BoardListResponseDto getOtherBoards(@PathVariable("user_id") Long user_id) {
+        return boardService.getOthersBoards(user_id);
+    }
+
 
 }
