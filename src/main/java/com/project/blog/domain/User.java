@@ -36,19 +36,19 @@ public class User implements UserDetails {
     private String refreshToken;
 
     @Column(nullable = true)
-    private String  profile_image;
+    private String url;
 
-//    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true)
-//    @JoinColumn(name = "board_id", updatable = true)
-//    private List<Board> board = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "board_id")
+    private List<Board> boards = new ArrayList<>();
 
     public void update(String name, String password){
         this.name = name;
         this.password = password;
     }
 
-    public void profile_update(String profile_image) {
-        this.profile_image = profile_image;
+    public void updateUrl(String url) {
+        this.url = url;
     }
 
     public void updateRefreshToken(String refreshToken) {
