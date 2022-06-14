@@ -25,7 +25,7 @@ public enum ErrorCode {
     HIBERNATE_ERROR(NOT_FOUND, "hibernate Exception"),
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
-    USER_NOT_FIND(CONFLICT, "계정을 찾을 수 없습니다."),
+    USER_NOT_FOUND(CONFLICT, "계정을 찾을 수 없습니다."),
     ;
 
     private HttpStatus httpStatus;
