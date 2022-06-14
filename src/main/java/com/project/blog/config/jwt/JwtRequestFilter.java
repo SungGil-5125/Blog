@@ -36,7 +36,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @SneakyThrows
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 
         String accessToken = request.getHeader("Authorization"); // 헤더 요청해서 값 얻기
         String refreshToken = request.getHeader("RefreshToken");
@@ -44,7 +44,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if(accessToken != null && refreshToken != null && tokenProvider.getTokenType(accessToken).equals("accessToken")){
             if(tokenProvider.isTokenExpired(accessToken) && tokenProvider.getTokenType(accessToken).equals("refreshToken") && !tokenProvider.isTokenExpired(refreshToken)) {
                 accessToken = generateNewAccessToken(refreshToken);
-                writeResponse(response, accessToken); //헤더 추출 accessToken
+                writeResponse(response, accessToken);
             }
             String userEmail = accessTokenExractEmail(accessToken);
 

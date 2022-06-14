@@ -98,9 +98,4 @@ public class TokenProvider {
     public String generateRefreshToken(String email) {
         return doGenerateToken(email, TokenType.REFRESH_TOKEN, REFRESH_TOKEN_EXPIRED_TIME);
     }
-
-//    private String getUserPk(String token) {
-//        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-//    }
-
 }
