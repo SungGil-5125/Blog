@@ -1,13 +1,16 @@
 package com.project.blog.service;
 
 import com.project.blog.config.jwt.TokenProvider;
+import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
 import com.project.blog.dto.Request.UserUpdateDto;
 import com.project.blog.dto.Response.UserLoginResponseDto;
+import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.exception.CustomException;
 import com.project.blog.exception.ErrorCode;
+import com.project.blog.repository.BoardRepository;
 import com.project.blog.repository.UserRepository;
 import com.project.blog.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +36,7 @@ public class UserService {
     private final TokenProvider tokenProvider;
     private final CurrentUserUtil currentUserUtil;
     private final S3Service s3Service;
+    private final BoardRepository boardRepository;
 
     @Value("${cloud.aws.s3.profile_dir}")
     private String dir;
@@ -108,23 +112,50 @@ public class UserService {
 
     }
 
-    // 회원 이미지 가져오기
-    @Transactional
-    public String getProfile_img() throws IOException {
+//    // user_id로 user 정보 보기
+//    @Transactional
+//    public UserResponseDto get
 
-        User user = CurrentUserUtil();
+    // 회원 정보 가져 오기
+    @Transactional
+    public UserResponseDto getMyProfileImage(Long user_id) {
+
+        User user = userRepository.findById(user_id)
+                .orElseThrow(()-> new CustomException(USER_NOT_FOUND));
+        List<Board> boards = boardRepository.findByUser_Id(user_id);
         String profileUrl = user.getUrl();
 
+        UserResponseDto userResponseDto = UserResponseDto.builder()
+                .user_id(user_id)
+                .email(user.getEmail())
+                .name(user.getName())
+                .url(user.getUrl())
+                .board_number(boards.size())
+                .build();
+
         if(profileUrl == null) {
-            return "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/IMG_5713.jpg";
+             userResponseDto.setUrl("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/IMG_5713.jpg");
         }
 
-        return profileUrl;
+        return userResponseDto;
+    }
+
+    @Transactional
+    public String getProfileImage() {
+        User user = CurrentUserUtil();
+
+        String url = user.getUrl();
+
+        if(url == null) {
+            url = "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/board_image/%EB%B8%94%EB%A1%9C%EA%B7%B8+%EA%B8%B0%EB%B3%B8+%EC%9D%B4%EB%AF%B8%EC%A7%80.jpg";
+        }
+
+        return url;
     }
 
     // 전체 게시글에 회원 이미지 보여주기
     @Transactional
-    public String BoardProfileImage(Long user_id) {
+    public String getProfileImage(Long user_id) {
 
         User user = userRepository.findById(user_id)
                 .orElseThrow(()-> new CustomException(USER_NOT_FOUND));
@@ -134,6 +165,8 @@ public class UserService {
         if(profileUrl == null) {
             return "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/IMG_5713.jpg";
         }
+
+
 
         return profileUrl;
     }
