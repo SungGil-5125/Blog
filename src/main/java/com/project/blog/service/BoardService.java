@@ -51,6 +51,10 @@ public class BoardService {
                 .date(date)
                 .build();
 
+        if(file != null) {
+
+        }
+
         String uploadUrl = s3Service.upload(file, dirName);
 
         Board board = boardCreateDto.toEntity(user, uploadUrl);
@@ -70,7 +74,6 @@ public class BoardService {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .date(board.getDate())
-                .user_name(board.getUser().getUsername())
                 .build();
     }
 
@@ -113,6 +116,10 @@ public class BoardService {
                 .orElseThrow(()-> new CustomException(BOARD_NOT_FOUND));
 
         String url = board.getUrl();
+
+        if(url == null) {
+            return "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/board_image/%EB%B8%94%EB%A1%9C%EA%B7%B8+%EA%B8%B0%EB%B3%B8+%EC%9D%B4%EB%AF%B8%EC%A7%80.jpg";
+        }
 
         return url;
     }
@@ -169,8 +176,6 @@ public class BoardService {
 
             BoardResponseDto boardResponseDto = BoardResponseDto.builder()
                     .board_id(board_id)
-                    .user_name(user.getName())
-                    .user_id(user.getUser_id())
                     .title(title)
                     .content(content)
                     .date(date)
