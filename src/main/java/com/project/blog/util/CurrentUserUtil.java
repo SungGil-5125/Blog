@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import static com.project.blog.exception.ErrorCode.USER_NOT_FIND;
+import static com.project.blog.exception.ErrorCode.USER_NOT_FOUND;
 
 @Component
 @Slf4j
@@ -28,13 +28,7 @@ public class CurrentUserUtil {
             email = principal.toString();
         }
 
-//        String userEamil = ((UserDetails)principal).getUsername();
-
-        log.info("userEmail : " + email);
-
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(USER_NOT_FIND));
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
-
-
 }
