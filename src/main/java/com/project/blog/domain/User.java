@@ -38,10 +38,6 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private String url;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "board_id")
-    private List<Board> boards = new ArrayList<>();
-
     public void update(String name, String password){
         this.name = name;
         this.password = password;
