@@ -1,6 +1,5 @@
 package com.project.blog.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.BoardCreateDto;
@@ -39,6 +38,9 @@ public class BoardService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
+    @Value("${cloud.aws.s3.normal_url}")
+    private String normal_image;
+
     // 블로그 생성
     @Transactional
     public Board CreateBoard(MultipartFile file, String title, String content, String date) throws IOException {
@@ -51,11 +53,11 @@ public class BoardService {
                 .date(date)
                 .build();
 
-        if(file != null) {
-
-        }
-
         String uploadUrl = s3Service.upload(file, dirName);
+
+        if(file.isEmpty()) {
+            uploadUrl = normal_image;
+        }
 
         Board board = boardCreateDto.toEntity(user, uploadUrl);
 
@@ -74,6 +76,8 @@ public class BoardService {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .date(board.getDate())
+                .user_id(board.getUser().getUser_id())
+                .user_name(board.getUser().getName())
                 .build();
     }
 
@@ -118,7 +122,7 @@ public class BoardService {
         String url = board.getUrl();
 
         if(url == null) {
-            return "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/board_image/%EB%B8%94%EB%A1%9C%EA%B7%B8+%EA%B8%B0%EB%B3%B8+%EC%9D%B4%EB%AF%B8%EC%A7%80.jpg";
+            return normal_image;
         }
 
         return url;
@@ -130,6 +134,8 @@ public class BoardService {
 
         Board board = boardRepository.findById(board_id)
                 .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
+
+        s3Service.deleteFile(board.getUrl().substring(57));
 
         boardRepository.delete(board);
     }
@@ -161,9 +167,6 @@ public class BoardService {
 
         List<Board> boards = boardRepository.findByUser_Id(user.getUser_id());
 
-        if(boards.isEmpty()) {
-            throw new CustomException(BOARD_NOT_FOUND);
-        }
 
         List<BoardResponseDto> data = new ArrayList<>();
 
