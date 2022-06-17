@@ -38,7 +38,7 @@ public class BoardService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    @Value("${cloud.aws.s3.normal_url}")
+    @Value("${cloud.aws.s3.board_normal_url}")
     private String normal_image;
 
     // 블로그 생성
