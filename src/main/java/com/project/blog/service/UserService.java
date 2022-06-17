@@ -41,6 +41,9 @@ public class UserService {
     @Value("${cloud.aws.s3.profile_dir}")
     private String dir;
 
+    @Value("${cloud.aws.s3.profile_normal_url}")
+    private String normal_url;
+
     // 회원가입
     @Transactional
     public User join(UserSignupDto userSignupDto) {
@@ -76,7 +79,6 @@ public class UserService {
                 .RefreshToken(RefreshToken)
                 .AccessToken(AccessToken)
                 .build();
-
     }
 
     // 로그아웃
@@ -104,12 +106,18 @@ public class UserService {
             throw new CustomException(PASSWORD_NOT_CORRECT);
         }
 
-        user.update(userUpdateDto.getName(), new_password_encode);
+        if(file.isEmpty()) {
+            user.updateUrl(null);
+            user.update(userUpdateDto.getName(), new_password_encode);
+        }
 
-        String uploadUrl = s3Service.upload(file, dir);
+       if(!file.isEmpty()) {
+           user.update(userUpdateDto.getName(), new_password_encode);
 
-        user.updateUrl("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/" + uploadUrl);
+           String uploadUrl = s3Service.upload(file, dir);
 
+           user.updateUrl("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/" + uploadUrl);
+       }
     }
 
 //    // user_id로 user 정보 보기
@@ -134,7 +142,7 @@ public class UserService {
                 .build();
 
         if(profileUrl == null) {
-             userResponseDto.setUrl("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/IMG_5713.jpg");
+             userResponseDto.setUrl(null);
         }
 
         return userResponseDto;
@@ -144,13 +152,13 @@ public class UserService {
     public String getProfileImage() {
         User user = CurrentUserUtil();
 
-        String url = user.getUrl();
+        String ProfileUrl = user.getUrl();
 
-        if(url == null) {
-            url = "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/board_image/%EB%B8%94%EB%A1%9C%EA%B7%B8+%EA%B8%B0%EB%B3%B8+%EC%9D%B4%EB%AF%B8%EC%A7%80.jpg";
+        if(ProfileUrl == null) {
+            return null;
         }
 
-        return url;
+        return ProfileUrl;
     }
 
     // 전체 게시글에 회원 이미지 보여주기
@@ -163,10 +171,8 @@ public class UserService {
         String profileUrl = user.getUrl();
 
         if(profileUrl == null) {
-            return "https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/IMG_5713.jpg";
+            return "1";
         }
-
-
 
         return profileUrl;
     }
