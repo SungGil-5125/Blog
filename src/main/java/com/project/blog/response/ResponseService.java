@@ -12,7 +12,7 @@ public class ResponseService {
     @Getter
     @AllArgsConstructor
     private enum CommonResponse {
-        SUCCESS(true, "성공했습니다.", HttpStatus.OK);
+        SUCCESS(true, "아싸뵹.", HttpStatus.OK);
         private boolean success;
         private String msg;
         private HttpStatus httpStatus;
