@@ -14,5 +14,7 @@ public class BoardResponseDto {
     private String title;
     private String content;
     private String date;
+    private Long user_id;
+    private String user_name;
 
 }
