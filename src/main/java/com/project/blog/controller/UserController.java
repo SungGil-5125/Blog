@@ -24,6 +24,11 @@ public class UserController {
     private final UserService userService;
     private final ResponseService responseService;
 
+    @GetMapping("/user")
+    public String test() {
+        return "성공";
+    }
+
     // 회원 가입
     @PostMapping("/user/register")
     public CommonResultResponse SignUp(@RequestBody UserSignupDto userSignupDto) {
