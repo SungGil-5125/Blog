@@ -171,7 +171,7 @@ public class UserService {
         String profileUrl = user.getUrl();
 
         if(profileUrl == null) {
-            return "1";
+            return null;
         }
 
         return profileUrl;
