@@ -90,15 +90,8 @@ public class UserService {
 
     // 프로필 수정
     @Transactional
-    public void updateProfile(String name, String password, String newPassword, MultipartFile file) throws IOException {
-
+    public void updateProfile(UserUpdateDto userUpdateDto) {
         User user = CurrentUserUtil();
-
-        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
-                .name(name)
-                .password(password)
-                .newPassword(newPassword)
-                .build();
 
         String new_password_encode = passwordEncoder.encode(userUpdateDto.getNewPassword());
 
@@ -106,23 +99,19 @@ public class UserService {
             throw new CustomException(PASSWORD_NOT_CORRECT);
         }
 
-        if(file.isEmpty()) {
-            user.updateUrl(null);
-            user.update(userUpdateDto.getName(), new_password_encode);
-        }
+        user.update(userUpdateDto.getName(), new_password_encode);
 
-       if(!file.isEmpty()) {
-           user.update(userUpdateDto.getName(), new_password_encode);
-
-           String uploadUrl = s3Service.upload(file, dir);
-
-           user.updateUrl("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/" + uploadUrl);
-       }
     }
 
-//    // user_id로 user 정보 보기
-//    @Transactional
-//    public UserResponseDto get
+    // 프로필 사진 수정
+    @Transactional
+    public void updateProfileImage(MultipartFile file) throws IOException{
+        User user = CurrentUserUtil();
+        String uploadUrl = null;
+
+        uploadUrl = s3Service.upload(file, dir);
+        user.updateUrl("https://devlog-s3-bucket.s3.ap-northeast-2.amazonaws.com/profile_image/" + uploadUrl);
+    }
 
     // 회원 정보 가져 오기
     @Transactional
@@ -148,6 +137,7 @@ public class UserService {
         return userResponseDto;
     }
 
+    // 토큰으로 이미지 보기
     @Transactional
     public String getProfileImage() {
         User user = CurrentUserUtil();

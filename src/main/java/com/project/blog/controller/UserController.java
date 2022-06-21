@@ -3,14 +3,13 @@ package com.project.blog.controller;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
 import com.project.blog.dto.Request.UserSignupDto;
+import com.project.blog.dto.Request.UserUpdateDto;
 import com.project.blog.dto.Response.UserLoginResponseDto;
 import com.project.blog.dto.Response.UserResponseDto;
 import com.project.blog.response.ResponseService;
 import com.project.blog.response.result.CommonResultResponse;
 import com.project.blog.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,14 +49,19 @@ public class UserController {
 
     // 프로필 수정
     @PatchMapping("/user/update")
-    public CommonResultResponse UpdateProfile(
-            @RequestParam(value = "name") String name,
-            @RequestParam(value = "password") String password,
-            @RequestParam(value = "newPassword") String newPassword, //현재 pw와 NewPw가 같을때 처리
-            @RequestParam MultipartFile file) throws IOException {
+    public CommonResultResponse UpdateProfile(@RequestBody UserUpdateDto userUpdateDto) throws IOException {
 
-        userService.updateProfile(name, password, newPassword, file);
+        userService.updateProfile(userUpdateDto);
 
+        return responseService.getSuccessResult();
+    }
+
+    // 프로필 사진 수정
+    @PatchMapping("/user/update/image")
+    public CommonResultResponse UpdateProfileImage(
+            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+
+        userService.updateProfileImage(file);
         return responseService.getSuccessResult();
     }
 
