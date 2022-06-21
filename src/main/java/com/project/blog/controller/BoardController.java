@@ -1,19 +1,15 @@
 package com.project.blog.controller;
 
 import com.project.blog.dto.Response.AllBoardListResponseDto;
-import com.project.blog.dto.Response.AllBoardResponseDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.response.ResponseService;
 import com.project.blog.response.result.CommonResultResponse;
 import com.project.blog.service.BoardService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
