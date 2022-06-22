@@ -1,6 +1,6 @@
 package com.project.blog.service;
 
-import com.project.blog.config.jwt.TokenProvider;
+import com.project.blog.config.security.jwt.TokenProvider;
 import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.UserLoginDto;
