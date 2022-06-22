@@ -1,4 +1,4 @@
-package com.project.blog.config.jwt;
+package com.project.blog.config.security.jwt;
 
 import com.project.blog.exception.CustomException;
 import io.jsonwebtoken.Claims;
@@ -10,13 +10,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SignatureException;
 import java.util.Date;
 
-import static com.project.blog.exception.ErrorCode.REFRESH_TOKEN_EXPIRATION;
+import static com.project.blog.exception.ErrorCode.TOKEN_EXPIRATION;
 
 @Component
 public class TokenProvider {
@@ -59,7 +60,7 @@ public class TokenProvider {
 
     public String getUserEmail(String token) throws MalformedInputException, SignatureException {
         if(isTokenExpired(token)) {
-            throw new CustomException(REFRESH_TOKEN_EXPIRATION);
+            throw new CustomException(TOKEN_EXPIRATION);
         }
 
         return extractAllClaims(token).get(TokenClaimName.USER_EMAIL.value, String.class);
@@ -97,5 +98,14 @@ public class TokenProvider {
 
     public String generateRefreshToken(String email) {
         return doGenerateToken(email, TokenType.REFRESH_TOKEN, REFRESH_TOKEN_EXPIRED_TIME);
+    }
+
+    public String getRefreshToken(HttpServletRequest request) {
+        String refreshToken = request.getHeader("RefreshToken");
+        if(refreshToken != null && refreshToken.startsWith("Bearer ")) {
+            return refreshToken.substring(7);
+        }else {
+            return null;
+        }
     }
 }
