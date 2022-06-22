@@ -1,6 +1,7 @@
 package com.project.blog.config;
 
-import com.project.blog.config.jwt.JwtRequestFilter;
+import com.project.blog.config.security.exception.ExceptionHandlerFilter;
+import com.project.blog.config.security.jwt.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +14,15 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.servlet.Filter;
+
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtRequestFilter jwtRequestFilter;
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -36,7 +40,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.anyRequest()
                 //.fullyAuthenticated()
 //                .and()
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(exceptionHandlerFilter, JwtRequestFilter.class);
     }
 
     @Bean
