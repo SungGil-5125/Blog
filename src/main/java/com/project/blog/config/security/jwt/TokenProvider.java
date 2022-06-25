@@ -74,7 +74,7 @@ public class TokenProvider {
         try {
             extractAllClaims(token).getExpiration();
             return false;
-        }catch (Exception e){
+        }catch (ExpiredJwtException e){
             return true;
         }
     }

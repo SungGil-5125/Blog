@@ -39,16 +39,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String accessToken = request.getHeader("Authorization"); // 헤더 요청해서 값 얻기
         String refreshToken = request.getHeader("RefreshToken");
 
-        if(accessToken != null && refreshToken != null && tokenProvider.getTokenType(accessToken).equals("accessToken")){
-            if(tokenProvider.isTokenExpired(accessToken) && tokenProvider.getTokenType(accessToken).equals("refreshToken") && !tokenProvider.isTokenExpired(refreshToken)) {
+        if(accessToken != null && refreshToken != null && tokenProvider.getTokenType(accessToken).equals("accessToken")) {
+            if (tokenProvider.isTokenExpired(accessToken) && tokenProvider.getTokenType(refreshToken).equals("refreshToken") && !tokenProvider.isTokenExpired(refreshToken)) {
                 accessToken = generateNewAccessToken(refreshToken);
                 writeResponse(response, accessToken);
             }
             String userEmail = accessTokenExractEmail(accessToken);
-
-            if(userEmail != null) {
-                registerUserInfoInSecurityContext(userEmail, request);
-            }
+            if(userEmail != null) registerUserInfoInSecurityContext(userEmail, request);
         }
         filterChain.doFilter(request, response);
     }
@@ -80,7 +77,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private void registerUserInfoInSecurityContext(String userEmail, HttpServletRequest req) {
         try{
-
             UserDetails userDetails = userService.loadUserByUsername(userEmail);
 
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
