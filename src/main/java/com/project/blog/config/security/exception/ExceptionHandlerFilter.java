@@ -33,13 +33,13 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
         try{
             filterChain.doFilter(request, response);
         }catch (ExpiredJwtException e) {
-            log.debug("[ ExceptionHandlerFilter ] 에서 ExpiredJwtException 발생");
+            log.error("[ ExceptionHandlerFilter ] 에서 ExpiredJwtException 발생");
             setErrorResponse(TOKEN_EXPIRATION, response);
         }catch (JwtException | IllegalArgumentException e) {
-            log.debug("[ ExceptionHandlerFilter ] 에서 JwtException 발생");
+            log.error("[ ExceptionHandlerFilter ] 에서 JwtException 발생");
             setErrorResponse(TOKEN_INVALID, response);
         }catch (Exception e) {
-            log.debug("[ ExceptionHandlerFilter ] 에서 Exception 발생");
+            log.error("[ ExceptionHandlerFilter ] 에서 Exception 발생");
             setErrorResponse(UNKNOWN_ERROR, response);
         }
 
