@@ -95,6 +95,7 @@ public class BoardService {
             String title = board.getTitle();
             String content = board.getContent();
             String date = board.getDate();
+            String url = board.getUrl();
 
             AllBoardResponseDto allBoardResponseDto = AllBoardResponseDto.builder()
                     .board_id(board_id)
@@ -103,6 +104,7 @@ public class BoardService {
                     .title(title)
                     .content(content)
                     .date(date)
+                    .url(url)
                     .build();
 
             blogs.add(allBoardResponseDto);
