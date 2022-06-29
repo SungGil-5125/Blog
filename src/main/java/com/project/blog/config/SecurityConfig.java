@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.servlet.Filter;
 
+import static org.springframework.http.HttpMethod.POST;
+
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
@@ -36,10 +38,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-//                .authorizeRequests()
-                //.anyRequest()
-                //.fullyAuthenticated()
-//                .and()
+                .authorizeRequests()
+                .antMatchers(POST, "/user/login").permitAll()
+                .antMatchers(POST, "/user/register").permitAll()
+                .anyRequest().authenticated()
+                .and()
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(exceptionHandlerFilter, JwtRequestFilter.class);
     }
