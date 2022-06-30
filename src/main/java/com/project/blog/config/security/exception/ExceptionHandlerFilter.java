@@ -1,7 +1,6 @@
 package com.project.blog.config.security.exception;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.blog.exception.ErrorCode;
 import com.project.blog.exception.ErrorResponse;

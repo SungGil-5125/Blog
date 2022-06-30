@@ -21,6 +21,7 @@ public class RefreshTokenController {
     private final TokenProvider tokenProvider;
 
     // refreshToken 재발급
+    // 프론트가 access토큰을 받았는데 없으면 하는 요청
     @PutMapping("refreshToken")
     public CommonResultResponse reissueRefreshToken(HttpServletRequest request, @RequestBody RefreshTokenDto refreshTokenDto) {
         refreshTokenService.refreshToken(tokenProvider.getRefreshToken(request), refreshTokenDto);
