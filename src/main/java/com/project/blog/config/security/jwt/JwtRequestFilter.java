@@ -1,11 +1,9 @@
 package com.project.blog.config.security.jwt;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.nio.charset.MalformedInputException;
 import java.security.SignatureException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -37,35 +32,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 
         String accessToken = request.getHeader("Authorization"); // 헤더 요청해서 값 얻기
-        String refreshToken = request.getHeader("RefreshToken");
 
-        if(accessToken != null && refreshToken != null && tokenProvider.getTokenType(accessToken).equals("accessToken")) {
-            if (tokenProvider.isTokenExpired(accessToken) && tokenProvider.getTokenType(refreshToken).equals("refreshToken") && !tokenProvider.isTokenExpired(refreshToken)) {
-                accessToken = generateNewAccessToken(refreshToken);
-                writeResponse(response, accessToken);
-            }
+        if (tokenProvider.isTokenExpired(accessToken) && tokenProvider.getTokenType(accessToken).equals("accessToken") && !tokenProvider.isTokenExpired(accessToken)) {
             String userEmail = accessTokenExractEmail(accessToken);
-            if(userEmail != null) registerUserInfoInSecurityContext(userEmail, request);
+            if (userEmail != null) registerUserInfoInSecurityContext(userEmail, request);
         }
-        filterChain.doFilter(request, response);
-    }
 
-    private void writeResponse(HttpServletResponse response, String accessToken) throws IOException {
-        String bodyToJson = getBodyToJson();
-        response.addHeader("accessToken", accessToken);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.getWriter().write(bodyToJson);
-    }
-
-    private String getBodyToJson() throws JsonProcessingException {
-        Map<String, Object> body = new HashMap<>();
-        body.put("success" , true);
-        body.put("msg", "token is regenerated");
-        body.put("status", HttpStatus.UNAUTHORIZED.value());
-        String bodyToJson = objectMapper.writeValueAsString(body);
-        return bodyToJson;
-    }
+        filterChain.doFilter(request,response);
+}
 
     private String accessTokenExractEmail(String accessToken) {
         try {
@@ -85,15 +59,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
         }catch (NullPointerException e) {
-            throw new RuntimeException();
-        }
-    }
-
-    // 토큰 생성 해주는 메서드
-    private String generateNewAccessToken(String refreshToken) {
-        try {
-            return tokenProvider.generateAccessToken(tokenProvider.getUserEmail(refreshToken));
-        }catch (JwtException | IllegalStateException | MalformedInputException | SignatureException e) {
             throw new RuntimeException();
         }
     }

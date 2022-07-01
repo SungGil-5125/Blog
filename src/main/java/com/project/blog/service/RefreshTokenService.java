@@ -41,8 +41,8 @@ public class RefreshTokenService {
 
             user.updateRefreshToken(newRefreshToken);
             map.put("email", email);
-            map.put("NewAccessToken", "Bearer " + newAccessToken);
-            map.put("NewRefreshToken", "Bearer " + newRefreshToken);
+            map.put("NewAccessToken", newAccessToken);
+            map.put("NewRefreshToken", newRefreshToken);
             // Bearer : 토큰 포맷 형식 사람들이 JWT 토큰인걸 쉽게 알게 하기 위한것이다. 아니면 디코 성길#0091 ㄱㄱ
             return map;
         }

@@ -14,9 +14,8 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.Filter;
-
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -43,10 +42,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(POST, "/user/login").permitAll()
                 .antMatchers(POST, "/user/register").permitAll()
-                .anyRequest().authenticated()
-                .and()
+                .antMatchers(PUT, "/refreshToken").permitAll();
+//                .anyRequest().authenticated()
+
+        http
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(exceptionHandlerFilter, JwtRequestFilter.class);
+
     }
 
     @Bean
