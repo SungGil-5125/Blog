@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +26,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
     private final UserDetailsService userService;
-    private final ObjectMapper objectMapper;
 
     @SneakyThrows
     @Override
@@ -33,7 +33,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String accessToken = request.getHeader("Authorization"); // 헤더 요청해서 값 얻기
 
-        if (tokenProvider.isTokenExpired(accessToken) && tokenProvider.getTokenType(accessToken).equals("accessToken") && !tokenProvider.isTokenExpired(accessToken)) {
+        if (accessToken != null && !tokenProvider.isTokenExpired(accessToken)) {
             String userEmail = accessTokenExractEmail(accessToken);
             if (userEmail != null) registerUserInfoInSecurityContext(userEmail, request);
         }

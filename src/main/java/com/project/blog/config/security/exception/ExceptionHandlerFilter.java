@@ -41,7 +41,6 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
             log.error("[ ExceptionHandlerFilter ] 에서 Exception 발생");
             setErrorResponse(UNKNOWN_ERROR, response);
         }
-
     }
 
     public void setErrorResponse(ErrorCode errorCode, HttpServletResponse response) throws IOException {
