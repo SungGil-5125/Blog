@@ -95,13 +95,18 @@ public class UserService {
 
         if(userUpdateDto.getPassword() == "" && userUpdateDto.getNewPassword() == "") {
             user.update(userUpdateDto.getName(), user.getPassword());
-        } else {
-            String new_password_encode = passwordEncoder.encode(userUpdateDto.getPassword());
+        }
+
+        if(userUpdateDto.getPassword() != "" && userUpdateDto.getNewPassword() != "") {
+            String new_password_encode = passwordEncoder.encode(userUpdateDto.getNewPassword());
+
             if(!passwordEncoder.matches(userUpdateDto.getPassword(), user.getPassword())){
                 throw new CustomException(PASSWORD_NOT_CORRECT);
             }
+
             user.update(userUpdateDto.getName(), new_password_encode);
         }
+
     }
 
     // 프로필 사진 수정
