@@ -3,7 +3,6 @@ package com.project.blog.service;
 import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.BoardCreateDto;
-import com.project.blog.dto.Response.AllBoardListResponseDto;
 import com.project.blog.dto.Response.AllBoardResponseDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
@@ -83,36 +82,25 @@ public class BoardService {
 
     // 모든 게시글 보기
     @Transactional
-    public AllBoardListResponseDto getAllBoards() {
+    public List<AllBoardResponseDto> getAllBoards() {
 
         List<Board> findByAllBoards = boardRepository.findAll();
         List<AllBoardResponseDto> blogs = new ArrayList<>();
 
-        for (Board board : findByAllBoards) {
+        findByAllBoards.forEach(board -> {
+            blogs.add(AllBoardResponseDto.builder()
+                    .board_id(board.getBoard_id())
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .url(board.getUrl())
+                    .date(board.getDate())
+                    .user_name(board.getUser().getName())
+                    .user_id(board.getUser().getUser_id())
+                    .build());
+            });
 
-            Long board_id = board.getBoard_id();
-            User user = board.getUser();
-            String title = board.getTitle();
-            String content = board.getContent();
-            String date = board.getDate();
-            String url = board.getUrl();
+        return blogs;
 
-            AllBoardResponseDto allBoardResponseDto = AllBoardResponseDto.builder()
-                    .board_id(board_id)
-                    .user_name(user.getName())
-                    .user_id(user.getUser_id())
-                    .title(title)
-                    .content(content)
-                    .date(date)
-                    .url(url)
-                    .build();
-
-            blogs.add(allBoardResponseDto);
-        }
-
-        AllBoardListResponseDto allBoardListResponseDto = new AllBoardListResponseDto(blogs);
-
-        return allBoardListResponseDto;
     }
 
     // 모든 게시글 사진
