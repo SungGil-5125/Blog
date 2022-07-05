@@ -102,8 +102,8 @@ public class TokenProvider {
 
     public String getRefreshToken(HttpServletRequest request) {
         String refreshToken = request.getHeader("RefreshToken");
-        if(refreshToken != null && refreshToken.startsWith("Bearer ")) {
-            return refreshToken.substring(7);
+        if(refreshToken != null && !isTokenExpired(refreshToken)) {
+            return refreshToken;
         }else {
             return null;
         }

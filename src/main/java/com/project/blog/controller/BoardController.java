@@ -1,6 +1,6 @@
 package com.project.blog.controller;
 
-import com.project.blog.dto.Response.AllBoardResponseDto;
+import com.project.blog.dto.Response.AllBoardListResponseDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
 import com.project.blog.response.ResponseService;
@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,7 +48,7 @@ public class BoardController {
 
     // 전체 게시글 불러 오기
     @GetMapping("board")
-    public List<AllBoardResponseDto> showAllBlog() {
+    public AllBoardListResponseDto showAllBlog() {
         return boardService.getAllBoards();
     }
 
