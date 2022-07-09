@@ -1,5 +1,6 @@
 package com.project.blog.controller;
 
+import com.project.blog.dto.Request.BoardUpdateDto;
 import com.project.blog.dto.Response.AllBoardListResponseDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
 import com.project.blog.dto.Response.BoardResponseDto;
@@ -68,5 +69,11 @@ public class BoardController {
     @GetMapping("/boards/{user_id}")
     public BoardListResponseDto getOtherBoards(@PathVariable("user_id") Long user_id) {
         return boardService.getOthersBoards(user_id);
+    }
+
+    @PatchMapping("/board/{board_id}")
+    public CommonResultResponse updateBoard(@PathVariable("board_id") Long board_id, @RequestBody BoardUpdateDto boardUpdateDto) {
+        boardService.updateBoard(board_id, boardUpdateDto);
+        return responseService.getSuccessResult();
     }
 }

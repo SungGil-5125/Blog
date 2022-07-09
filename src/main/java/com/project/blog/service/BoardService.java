@@ -3,6 +3,7 @@ package com.project.blog.service;
 import com.project.blog.domain.Board;
 import com.project.blog.domain.User;
 import com.project.blog.dto.Request.BoardCreateDto;
+import com.project.blog.dto.Request.BoardUpdateDto;
 import com.project.blog.dto.Response.AllBoardListResponseDto;
 import com.project.blog.dto.Response.AllBoardResponseDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
@@ -168,8 +169,6 @@ public class BoardService {
     public BoardListResponseDto getBoards(User user) {
 
         List<Board> boards = boardRepository.findByUser_Id(user.getUser_id());
-
-
         List<BoardResponseDto> data = new ArrayList<>();
 
         for(Board board : boards) {
@@ -191,5 +190,14 @@ public class BoardService {
         BoardListResponseDto boardListResponseDto = new BoardListResponseDto(data);
 
         return boardListResponseDto;
+    }
+
+    @Transactional
+    public void updateBoard(Long board_id, BoardUpdateDto boardUpdateDto) {
+
+        Board board = boardRepository.findById(board_id)
+                .orElseThrow(()-> new CustomException(BOARD_NOT_FOUND));
+
+        board.updateBoard(boardUpdateDto.getTitle(), boardUpdateDto.getContent(), boardUpdateDto.getDate());
     }
 }
