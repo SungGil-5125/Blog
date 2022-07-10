@@ -72,8 +72,10 @@ public class BoardController {
     }
 
     @PatchMapping("/board/{board_id}")
-    public CommonResultResponse updateBoard(@PathVariable("board_id") Long board_id, @RequestBody BoardUpdateDto boardUpdateDto) {
-        boardService.updateBoard(board_id, boardUpdateDto);
+    public CommonResultResponse updateBoard(@PathVariable("board_id") Long board_id,
+                                            @RequestParam BoardUpdateDto boardUpdateDto,
+                                            @RequestPart(required = false) MultipartFile file) {
+        boardService.updateBoard(board_id, boardUpdateDto, file);
         return responseService.getSuccessResult();
     }
 }
