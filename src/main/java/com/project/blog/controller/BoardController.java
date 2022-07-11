@@ -1,5 +1,6 @@
 package com.project.blog.controller;
 
+import com.project.blog.dto.Request.BoardCreateDto;
 import com.project.blog.dto.Request.BoardUpdateDto;
 import com.project.blog.dto.Response.AllBoardListResponseDto;
 import com.project.blog.dto.Response.BoardListResponseDto;
@@ -9,8 +10,11 @@ import com.project.blog.response.result.CommonResultResponse;
 import com.project.blog.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,17 +25,12 @@ public class BoardController {
     private final ResponseService responseService;
 
     // 게시글 생성
-    @PostMapping("board/write")
+    @PostMapping("board/write") // , consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE}
     public CommonResultResponse CreateBoard(
-            @RequestPart(value = "file", required = false) MultipartFile multipartFile,
-            @RequestParam(value = "title") String title,
-            @RequestParam(value = "content") String content,
-            @RequestParam(value = "date") String date
-            ) throws Exception {
-
-        boardService.CreateBoard(multipartFile, title, content, date);
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "boardDto") BoardCreateDto boardCreateDto) throws IOException{
+        boardService.CreateBoard(boardCreateDto, file);
         return responseService.getSuccessResult();
-
     }
 
     // 게시글 보기
@@ -71,10 +70,10 @@ public class BoardController {
         return boardService.getOthersBoards(user_id);
     }
 
-    @PatchMapping("/board/{board_id}")
+    @PatchMapping("/board/update/{board_id}")
     public CommonResultResponse updateBoard(@PathVariable("board_id") Long board_id,
-                                            @RequestParam BoardUpdateDto boardUpdateDto,
-                                            @RequestPart(required = false) MultipartFile file) {
+                                            @RequestPart(required = false, value = "file") MultipartFile file,
+                                            @RequestPart(value = "boardDto") BoardUpdateDto boardUpdateDto) throws IOException {
         boardService.updateBoard(board_id, boardUpdateDto, file);
         return responseService.getSuccessResult();
     }

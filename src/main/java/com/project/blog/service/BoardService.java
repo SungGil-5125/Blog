@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import static com.project.blog.exception.ErrorCode.*;
 
 @Slf4j
@@ -36,32 +38,17 @@ public class BoardService {
     @Value("${cloud.aws.s3.board_dir}")
     private String dirName;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucketName;
-
-    @Value("${cloud.aws.s3.board_normal_url}")
-    private String normal_image;
+    @Value("${cloud.aws.s3.url}")
+    private String url;
 
     // 블로그 생성
     @Transactional
-    public Board CreateBoard(MultipartFile file, String title, String content, String date) throws IOException {
+    public Board CreateBoard(BoardCreateDto boardCreateDto, MultipartFile file) throws IOException {
 
         User user = userService.CurrentUserUtil();
-
-        BoardCreateDto boardCreateDto = BoardCreateDto.builder()
-                .title(title)
-                .content(content)
-                .date(date)
-                .build();
-
         String uploadUrl = s3Service.upload(file, dirName);
 
-        if(file.isEmpty()) {
-            uploadUrl = normal_image;
-        }
-
         Board board = boardCreateDto.toEntity(user, uploadUrl);
-
         return boardRepository.save(board);
     }
 
@@ -122,13 +109,7 @@ public class BoardService {
         Board board = boardRepository.findById(board_id)
                 .orElseThrow(()-> new CustomException(BOARD_NOT_FOUND));
 
-        String url = board.getUrl();
-
-        if(url == null) {
-            return normal_image;
-        }
-
-        return url;
+        return board.getUrl();
     }
 
     // 블로그 삭제
@@ -193,11 +174,17 @@ public class BoardService {
     }
 
     @Transactional
-    public void updateBoard(Long board_id, BoardUpdateDto boardUpdateDto) {
+    public void updateBoard(Long board_id, BoardUpdateDto boardUpdateDto, MultipartFile file) throws IOException{
 
         Board board = boardRepository.findById(board_id)
                 .orElseThrow(()-> new CustomException(BOARD_NOT_FOUND));
 
-        board.updateBoard(boardUpdateDto.getTitle(), boardUpdateDto.getContent(), boardUpdateDto.getDate());
+        try {
+            String uploadFile = s3Service.upload(file, dirName);
+            board.updateBoard(boardUpdateDto.getTitle(), boardUpdateDto.getContent(), boardUpdateDto.getDate(), url + uploadFile);
+        } catch (NullPointerException e) {
+            String url = board.getUrl();
+            board.updateBoard(boardUpdateDto.getTitle(), boardUpdateDto.getContent(), boardUpdateDto.getDate(), url);
+        }
     }
 }
