@@ -16,6 +16,7 @@ public enum ErrorCode {
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     TOKEN_EXPIRATION(UNAUTHORIZED, "만료된 Token입니다."),
+    NOT_YOUR_BOARD(UNAUTHORIZED, "남의 블로그는 삭제 할 수 없습니다."),
 
     /* 403 FORBIDDEN : 웹 페이지를 볼 권한이 없음 */
     TOKEN_INVALID(FORBIDDEN, "유효하지 않은 Token입니다."),

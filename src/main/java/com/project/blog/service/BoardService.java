@@ -115,13 +115,16 @@ public class BoardService {
     // 블로그 삭제
     @Transactional
     public void DeleteBlog(Long board_id) {
-
+        User user = userService.CurrentUserUtil();
         Board board = boardRepository.findById(board_id)
                 .orElseThrow(() -> new CustomException(BOARD_NOT_FOUND));
 
-        s3Service.deleteFile(board.getUrl().substring(57));
-
-        boardRepository.delete(board);
+        if(board.getUser().getUser_id() == user.getUser_id()) {
+            s3Service.deleteFile(board.getUrl().substring(57));
+            boardRepository.delete(board);
+        } else {
+            throw new CustomException(NOT_YOUR_BOARD);
+        }
     }
 
     // user_id에 맞는 블로그 전체를 보여 준다
