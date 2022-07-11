@@ -38,9 +38,10 @@ public class Board {
     @Column
     private String url;
 
-    public void updateBoard(String title, String content, String date) {
+    public void updateBoard(String title, String content, String date, String url) {
         this.title = title;
         this.content = content;
         this.date = date;
+        this.url = url;
     }
 }
