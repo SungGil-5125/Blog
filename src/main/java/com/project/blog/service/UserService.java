@@ -41,9 +41,6 @@ public class UserService {
     @Value("${cloud.aws.s3.profile_dir}")
     private String dir;
 
-    @Value("${cloud.aws.s3.profile_normal_url}")
-    private String normal_url;
-
     // 회원가입
     @Transactional
     public User join(UserSignupDto userSignupDto) {
@@ -62,6 +59,7 @@ public class UserService {
     // 로그인
     @Transactional
     public UserLoginResponseDto login(UserLoginDto userLoginDto) {
+
         User user = userRepository.findByEmail(userLoginDto.getEmail())
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
